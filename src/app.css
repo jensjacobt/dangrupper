@@ -1,0 +1,164 @@
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+html,body {
+    height: 100%
+}
+
+.flex-centered {
+    display: flex;
+    align-items: center;
+    justify-content: center
+}
+
+[data-theme=catppuccin],[data-theme=cerberus],[data-theme=crimson],[data-theme=hamlindigo],[data-theme=mint],[data-theme=modern],[data-theme=nouveau],[data-theme=mona],[data-theme=nosh],[data-theme=pine],[data-theme=rose],[data-theme=sahara],[data-theme=seafoam],[data-theme=vintage],[data-theme=wintry] {
+    background-image: radial-gradient(at 20% 10%,rgba(var(--color-secondary-500) / .075) 0px,transparent 40%),radial-gradient(at 75% 10%,rgba(var(--color-primary-500) / .075) 0px,transparent 50%);
+    background-attachment: fixed;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover
+}
+
+.card-enhanced {
+    border-radius: var(--radii-container)
+}
+
+a.card-enhanced {
+    transition-property: all;
+    transition-timing-function: cubic-bezier(.4,0,.2,1);
+    transition-duration: .15s
+}
+
+a.card-enhanced:hover {
+    --tw-brightness: brightness(.98);
+    filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow)
+}
+
+a.card-enhanced:hover:is(.dark *) {
+    --tw-brightness: brightness(1.1);
+    filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow)
+}
+
+.card-enhanced {
+    border-width: var(--border-width-default);
+    --tw-border-opacity: 1;
+    border-color: rgb(var(--color-surface-200) / var(--tw-border-opacity))
+}
+
+.card-enhanced:is(.dark *) {
+    --tw-border-opacity: 1;
+    border-color: rgb(var(--color-surface-800) / var(--tw-border-opacity))
+}
+
+[data-theme=catppuccin] .card-enhanced,[data-theme=terminus] .card-enhanced,[data-theme=vox] .card-enhanced,[data-theme=rocket] .card-enhanced {
+    --tw-bg-opacity: 1;
+    background-color: rgb(var(--color-surface-100) / var(--tw-bg-opacity))
+}
+
+[data-theme=catppuccin] .card-enhanced:is(.dark *),[data-theme=terminus] .card-enhanced:is(.dark *),[data-theme=vox] .card-enhanced:is(.dark *),[data-theme=rocket] .card-enhanced:is(.dark *) {
+    --tw-bg-opacity: 1;
+    background-color: rgb(var(--color-surface-900) / var(--tw-bg-opacity))
+}
+
+.card-filled-enhanced {
+    border-radius: var(--radii-container)
+}
+
+a.card-filled-enhanced {
+    transition-property: all;
+    transition-timing-function: cubic-bezier(.4,0,.2,1);
+    transition-duration: .15s
+}
+
+a.card-filled-enhanced:hover {
+    --tw-brightness: brightness(.98);
+    filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow)
+}
+
+a.card-filled-enhanced:hover:is(.dark *) {
+    --tw-brightness: brightness(1.1);
+    filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow)
+}
+
+.card-filled-enhanced {
+    --tw-bg-opacity: 1;
+    background-color: rgb(var(--color-primary-500) / var(--tw-bg-opacity));
+    --tw-text-opacity: 1;
+    color: rgb(var(--color-primary-contrast-500) / var(--tw-text-opacity))
+}
+
+.card-filled-enhanced:is(.dark *) {
+    --tw-text-opacity: 1;
+    color: rgb(var(--color-primary-contrast-500) / var(--tw-text-opacity))
+}
+
+.floating {
+    width: -moz-max-content;
+    width: max-content;
+    position: absolute;
+    top: 0;
+    left: 0
+}
+
+.floating {
+    transition-property: opacity
+}
+
+.floating[data-status=open],.floating[data-status=close] {
+    transition-duration: .25s
+}
+
+.floating[data-status=initial],.floating[data-status=close] {
+    opacity: 0
+}
+
+
+
+
+/* Svelecte */
+input.sv-input--text:focus { /* remove focus "border" */
+    box-shadow: none !important;
+}
+
+/** Dark mode on this page (switch to light mode to see library defaults) */
+.dark {
+    --sv-min-height: 40px;
+    --sv-bg: #32363f;
+    --sv-disabled-bg: #eee;
+    --sv-border: 1px solid #626262;
+    --sv-border-radius: 4px;
+    --sv-general-padding: 4px;
+    --sv-control-bg: var(--sv-bg);
+    --sv-item-wrap-padding: 3px 3px 3px 6px;
+    --sv-selection-wrap-padding: 3px 3px 3px 4px;
+    --sv-selection-multi-wrap-padding: 3px 3px 3px 6px;
+    --sv-item-selected-bg: #626262;
+    --sv-item-btn-color: #ccc;
+    --sv-item-btn-color-hover: #ccc;
+    --sv-item-btn-bg: #626262;
+    --sv-item-btn-bg-hover: #bc6063;
+    --sv-icon-color: #bbb;
+    --sv-icon-color-hover: #ccc;
+    --sv-icon-bg: transparent;
+    --sv-icon-size: 20px;
+    --sv-separator-bg: #626262;
+    --sv-btn-border: 0;
+    --sv-placeholder-color: #ccccd6;
+    --sv-dropdown-bg: var(--sv-bg);
+    --sv-dropdown-border: var(--sv-border);
+    --sv-dropdown-offset: 1px;
+    --sv-dropdown-width: auto;
+    --sv-dropdown-shadow: 0 1px 3px #555;
+    --sv-dropdown-height: 320px;
+    --sv-dropdown-active-bg: #553d3d;
+    --sv-dropdown-selected-bg: #754545;
+    --sv-create-kbd-border: 1px solid #626262;
+    --sv-create-kbd-bg: #626262;
+    --sv-create-disabled-bg: #fcbaba;
+    --sv-loader-border: 2px solid #626262;
+  }
+
+/* .sv-btn-indicator:not(.sv-has-selection), .sv-btn-separator { /* remove down arrow /
+    display: none !important;
+} */
