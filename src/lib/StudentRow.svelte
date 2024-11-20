@@ -1,17 +1,24 @@
 <script lang="ts">
 	let {
+		itemNumber,
 		student = $bindable(),
 		onpaste
 	}: {
+		itemNumber: number;
 		student: Student;
-		onpaste: (e: ClipboardEvent, id: number) => void;
+		onpaste: (e: ClipboardEvent) => void;
 	} = $props();
 </script>
 
-<input
-	class="input"
-	type="text"
-	placeholder="Navn"
-	bind:value={student.name}
-	onpaste={(e) => onpaste?.(e, student.id)}
-/>
+<div class="flex items-center gap-4">
+	<span class="badge-icon">{itemNumber + '.'}</span>
+	<input
+		class="input"
+		type="text"
+		placeholder="Navn"
+		bind:value={student.name}
+		onpaste={(e) => onpaste?.(e)}
+		autocomplete="off"
+		spellcheck="false"
+	/>
+</div>

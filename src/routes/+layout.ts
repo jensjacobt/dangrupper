@@ -5,11 +5,13 @@ export const prerender = false; // for SPA
 export const ssr = false; // for SPA
 export const trailingSlash = 'always'; // to match behavior of host (Netlify)
 
+import { getClasses } from '$lib/persistence.svelte';
 import type { LayoutLoad } from './$types';
 
 export const load: LayoutLoad = async () => {
-	// Indlæs holdnavne og returnér dem
+	console.log('Getting classes from DB');
+	const classes = (await getClasses()) || [];
 	return {
-		posts: ['post1', 'post2']
+		classes
 	};
 };

@@ -1,64 +1,54 @@
-import { get, set } from 'idb-keyval';
+import { delMany, get, keys, set, update } from 'idb-keyval';
+import { validateClassName, validateStudents } from './validation.svelte';
 
-// Inspiration:
-// https://www.youtube.com/watch?v=HnNgkwHZIII
-// https://blog.kowalczyk.info/article/persisted-svelte-store-indexeddb.html
+/* Get from and set in DB */
+export function getStored<T>(key: string): Promise<T | undefined> {
+	return get(key);
+}
 
-export class IdbStore<T> {
-	#key: string;
-	#value = $state<T>() as T;
-	// #crossTab: boolean; // Should crossTab be implemented? If so, uncomment all code in this class
-	// #lsKey: string;
+export function setStored<T>(key: string, value: T): void {
+	set(key, value).catch((error) => console.error('IDB Error Setting:', error));
+}
 
-	private constructor(key: string, value: T) {
-		this.#key = key;
-		this.#value = value;
-		// this.#lsKey = 'store-notify:' + key;
-		// this.#crossTab = crossTab;
-		// if (this.#crossTab) {
-		// 	   window.addEventListener("storage", this.storageChanged, false);
-		// }
-	}
+/* Classes */
+const classesKey = 'classes';
 
-	static async create(key: string, initialValue: null | boolean | number | string | object) {
-		const storedValue = await get(key);
+export function getClasses(): Promise<Class[] | undefined> {
+	return get(classesKey);
+}
 
-		if (storedValue !== undefined) {
-			return new IdbStore(key, storedValue);
-		} else if (initialValue === null) {
-			throw Error('Key not in store');
-		} else {
-			const store = new IdbStore(key, initialValue);
-			store.value = initialValue;
-			return store;
+export async function addClass(className: string, students: Student[]): Promise<void> {
+	className = className.trim();
+	let message = validateClassName(className);
+	if (message) throw Error(message);
+
+	students = students.map((s) => ({ ...s, name: s.name.trim() })).filter((s) => s.name != '');
+	message = validateStudents(students);
+	if (message) throw Error(message);
+
+	const classes = await get(classesKey);
+	if (Array.isArray(classes)) {
+		for (const c of classes) {
+			if (c.name == className) throw Error('Holdnavn allerede i brug – skriv et andet');
 		}
 	}
 
-	get value() {
-		return this.#value;
-	}
+	await update(classesKey, (classes) => {
+		return (classes || []).concat([
+			{
+				id: crypto.randomUUID(),
+				name: className,
+				students: students
+			}
+		]);
+	});
+}
 
-	set value(newValue: T) {
-		this.#value = newValue;
-		set(this.#key, newValue)
-			// .then(() => {
-			// 	if (this.#crossTab) {
-			// 		const n = +localStorage.getItem(this.#lsKey) || 0;
-			// 		localStorage.setItem(this.#lsKey, `${n + 1}`);
-			// 	}
-			// })
-			.catch((error) => console.error('IdbStore Error Setting:', error));
-	}
-
-	// private getCurrentValue() {
-	// 	get(this.#key).then((storedValue) => {
-	// 		this.#value = storedValue;
-	// 	});
-	// }
-
-	// private storageChanged(event: any) {
-	// 	   if (event.storageArea === localStorage && event.key === this.#lsKey) {
-	// 	      this.getCurrentValue();
-	//     }
-	// }
+export async function removeClass(klass: Class): Promise<void> {
+	await update(classesKey, (classes: Class[] | undefined) => {
+		return (classes || []).filter((c) => c.name != klass.name);
+	});
+	const storedKeys = await keys();
+	const keysToDelete = storedKeys.filter((key) => typeof key == 'string' && key.includes(klass.id));
+	await delMany(keysToDelete);
 }

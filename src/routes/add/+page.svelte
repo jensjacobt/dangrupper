@@ -1,52 +1,78 @@
 <script lang="ts">
+	import { getContext } from 'svelte';
+	import { type ToastContext } from '@skeletonlabs/skeleton-svelte';
 	import StudentRow from '$lib/StudentRow.svelte';
+	import { validity } from '$lib/actions.svelte';
+	import { validateClassName } from '$lib/validation.svelte';
+	import { addClass } from '$lib/persistence.svelte';
+	import { goto } from '$app/navigation';
+	import { classNameUrlName } from '$lib/utils';
+
+	export const toast: ToastContext = getContext('toast');
 
 	let id = 0;
-	let holdnavn = $state('');
-	const students: Student[] = $state([{ id: id++, name: '' }]);
+	let className = $state('');
+	let students: Student[] = $state([]);
 
-	function addStudent(name: string) {
-		students.push({ id: id++, name: name });
-	}
-
-	// TODO: Få paste til at virke i Firefox og Safari
-	function onpaste(e: ClipboardEvent, id: number) {
-		e.preventDefault();
-		const data = e.clipboardData?.items[0];
-		if (data?.kind == 'string' && data.type == 'text/plain') {
-			data.getAsString((pastedText) => {
-				for (const student of students) {
-					if (student.id == id) {
-						student.name = '';
-					}
-				}
-				const names = pastedText.split(/\r?\n/);
-				for (const name of names) {
-					addStudent(name);
-				}
-			});
-		}
-	}
-
-	$effect(() => {
-		const finalName = students[students.length - 1].name;
+	$effect.pre(() => {
+		const finalName = students[students.length - 1]?.name;
 		if (finalName !== '') {
-			addStudent('');
+			students.push(newStudent(''));
 		}
 	});
-	$inspect(students);
+
+	function newStudent(name: string) {
+		return { id: id++, name: name };
+	}
+
+	function onpaste(e: ClipboardEvent) {
+		e.preventDefault();
+		const pastedText = e.clipboardData?.getData('text');
+		if (pastedText) {
+			const names = pastedText.split(/\r?\n/).map((n) => n.trim());
+			const newStudents = students.concat(names.map(newStudent));
+			students = newStudents.filter((s) => s.name != '');
+		}
+	}
+
+	function addClassAndGoToClass(e: Event) {
+		e.preventDefault();
+		const name = $state.snapshot(className);
+		const studs = $state.snapshot(students).toSorted((a, b) => a.name.localeCompare(b.name));
+		addClass(name, studs)
+			.then(() => {
+				goto(`/hold/${classNameUrlName(name)}`, { invalidateAll: true });
+				return;
+			})
+			.catch((error) => {
+				toast.create({
+					title: 'Fejl',
+					description: error.message,
+					type: 'error'
+				});
+			});
+	}
 </script>
 
-<h1 class="h1">Tilføj hold</h1>
+<h2 class="h2">Tilføj hold</h2>
+<form id="form" class="space-y-4" onsubmit={addClassAndGoToClass}>
+	<h4 class="h4">Holdnavn</h4>
+	<input
+		class="input"
+		placeholder="Holdnavn"
+		bind:value={className}
+		use:validity={validateClassName}
+		autocomplete="off"
+		spellcheck="false"
+	/>
 
-<h2 class="h2">Holdnavn</h2>
-<input class="input" type="text" placeholder="Holdnavn" bind:value={holdnavn} />
-
-<h2 class="h2">Elever</h2>
-Tomme felter ignoreres. Tilføj hurtigt flere elever ved at indsætte fra udklipsholderen (ctrl+v) – den
-kopierede tekst skal have et navn pr. linje.
-{#each students as student, index (student.id)}
-	<StudentRow bind:student={students[index]} {onpaste} />
-{/each}
-
-<!-- TODO: Tilføj knap til at tilføje hold -->
+	<h4 class="h4">Elever</h4>
+	Tomme felter ignoreres og rækkefølgen er ligegyldig. Tilføj hurtigt flere elevnavne ved at indsætte
+	kopieret tekst med et navn pr. linje. Indsæt med ctrl+v eller command+v.
+	{#each students as student, i (student.id)}
+		<StudentRow itemNumber={i + 1} bind:student={students[i]} {onpaste} />
+	{/each}
+	<!-- Disable enter to submit -->
+	<button type="submit" disabled style="display: none" aria-hidden="true"></button>
+	<button type="submit" class="btn preset-filled-primary-500">Gem hold</button>
+</form>

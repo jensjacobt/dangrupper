@@ -1,5 +1,8 @@
 <script lang="ts">
-	import { Nav } from '@skeletonlabs/skeleton-svelte';
+	import type { Snippet } from 'svelte';
+	import type { LayoutData } from './$types';
+	import { page } from '$app/stores';
+	import { Nav, ToastProvider } from '@skeletonlabs/skeleton-svelte';
 	import {
 		CircleHelp,
 		CirclePlus,
@@ -9,10 +12,10 @@
 		Upload,
 		UsersRound
 	} from 'lucide-svelte';
-	import { page } from '$app/stores';
 	import '../app.css';
+	import { classNameUrlName } from '$lib/utils';
 
-	let { children } = $props();
+	let { children, data }: { children: Snippet; data: LayoutData } = $props();
 
 	function pushSwitch() {
 		document.documentElement.classList.toggle('dark');
@@ -34,9 +37,9 @@
 				title="Skift mellem lyst og mørkt udseende"><SunMoon size={28} /></button
 			>
 			<button class="btn hover:preset-tonal" title="Download backup"><Download size={28} /></button>
-			<button class="btn hover:preset-tonal" title="Upload tidligere backup"
-				><Upload size={28} /></button
-			>
+			<button class="btn hover:preset-tonal" title="Upload tidligere backup">
+				<Upload size={28} />
+			</button>
 		</div>
 	</header>
 	<!-- Grid Columns -->
@@ -48,47 +51,26 @@
 					<Nav.Tile selected={$page.url.pathname == '/'} href="/" label="Vejledning">
 						<CircleHelp size={32} />
 					</Nav.Tile>
-					<Nav.Tile
-						selected={$page.url.pathname.startsWith('/hold/1x_Fy/')}
-						label="1x Fy"
-						href={'/hold/1x_Fy/'}
-					>
-						<UsersRound size={32} />
-					</Nav.Tile>
-					<Nav.Tile
-						selected={$page.url.pathname.startsWith('/hold/1z_Ma/')}
-						label="1z Ma"
-						href={'/hold/1z_Ma/'}
-					>
-						<UsersRound size={32} />
-					</Nav.Tile>
-					<Nav.Tile
-						selected={$page.url.pathname == '/add/'}
-						labelExpanded="Tilføj hold"
-						href="/add/"
-						label="Tilføj hold"
-					>
+					{#each data.classes.map((c) => c.name).toSorted() as className}
+						{@const url = `/hold/${classNameUrlName(className)}/`}
+						<Nav.Tile selected={$page.url.pathname.startsWith(url)} label={className} href={url}>
+							<UsersRound size={32} />
+						</Nav.Tile>
+					{/each}
+					<Nav.Tile selected={$page.url.pathname == '/add/'} href="/add/" label="Tilføj hold">
 						<CirclePlus size={32} />
 					</Nav.Tile>
 				{/snippet}
-				<!--
-					{#snippet tiles()}
-					{/snippet}
-					{#snippet footer()}
-					{/snippet}
-				-->
 			</Nav.Rail>
 		</aside>
-		<div class="grid grid-rows-[1fr_auto]">
-			<!-- Main Content -->
-			<main class="container space-y-4 p-4 ps-8 pt-6">
+		<!-- Main Content -->
+		<main class="container space-y-4 p-4 ps-8 pt-6">
+			<ToastProvider>
+				<!-- fix to re-render component on page change: https://github.com/sveltejs/kit/issues/4941 -->
+				<!-- {#key $page.url.pathname} -->
 				{@render children()}
-				<p class="h-[512px] p-4">Paragraph 1</p>
-				<p class="h-[512px] p-4">Paragraph 2</p>
-				<p class="h-[512px] p-4">Paragraph 3</p>
-			</main>
-			<!-- Footer -->
-			<footer class="bg-blue-500 p-4">(footer)</footer>
-		</div>
+				<!-- {/key} -->
+			</ToastProvider>
+		</main>
 	</div>
 </div>
