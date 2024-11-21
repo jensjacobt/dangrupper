@@ -1,12 +1,7 @@
 <script lang="ts">
 	import type { PageData } from './$types';
 	import Svelecte from 'svelecte';
-	import { removeClass, setStored } from '$lib/persistence.svelte';
-	import { type ToastContext } from '@skeletonlabs/skeleton-svelte';
-	import { getContext } from 'svelte';
-	import { goto } from '$app/navigation';
-
-	export const toast: ToastContext = getContext('toast');
+	import { setStored } from '$lib/persistence.svelte';
 
 	let { data }: { data: PageData } = $props();
 
@@ -39,39 +34,11 @@
 	}
 
 	function createGroups() {}
-
-	function deleteClass(klass: Class) {
-		console.log('Deleting class', klass.name);
-		// TODO: Er du sikker?
-		removeClass(klass)
-			.then(() => {
-				goto('/', { invalidateAll: true });
-			})
-			.catch((error) => {
-				toast.create({
-					title: 'Fejl',
-					description: error.message,
-					type: 'error'
-				});
-			});
-	}
 </script>
 
 <!------------------------------------------------------------------------------------------------>
 
-<!-- TODO: Flyt header til layout.svelte (ny fil) -->
-<div class="grid grid-cols-[1fr_auto_auto] items-center gap-4">
-	<h2 class="h2">{data.currentClass.name}</h2>
-	<button type="button" class="btn preset-filled-primary-500"> Redigér klasse </button>
-	<button
-		type="button"
-		class="btn preset-filled-primary-500"
-		onclick={() => deleteClass(data.currentClass)}
-	>
-		Slet klasse
-	</button>
-</div>
-
+<h4 class="h3">Bordgrupper</h4>
 <h4 class="h4">Indstillinger</h4>
 Den enkelte elev skal opleve højst
 <input

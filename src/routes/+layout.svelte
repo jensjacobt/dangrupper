@@ -66,10 +66,7 @@
 		<!-- Main Content -->
 		<main class="container space-y-4 p-4 ps-8 pt-6">
 			<ToastProvider>
-				<!-- fix to re-render component on page change: https://github.com/sveltejs/kit/issues/4941 -->
-				<!-- {#key $page.url.pathname} -->
 				{@render children()}
-				<!-- {/key} -->
 			</ToastProvider>
 		</main>
 	</div>
