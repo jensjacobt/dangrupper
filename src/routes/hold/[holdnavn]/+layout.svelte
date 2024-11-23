@@ -5,6 +5,7 @@
 	import { getContext, type Snippet } from 'svelte';
 	import { type ToastContext } from '@skeletonlabs/skeleton-svelte';
 	import { Modal } from '@skeletonlabs/skeleton-svelte';
+	import { classNameUrlName } from '$lib/utils';
 
 	let { children, data }: { children: Snippet; data: LayoutData } = $props();
 
@@ -13,6 +14,11 @@
 	let openState = $state(false);
 	function modalClose() {
 		openState = false;
+	}
+
+	function editClass() {
+		const classUrlName = classNameUrlName(data.currentClass.name);
+		goto(`/hold/${classUrlName}/rediger`);
 	}
 
 	function deleteClass() {
@@ -32,9 +38,12 @@
 	}
 </script>
 
+<!-- Class bar -->
 <div class="grid grid-cols-[1fr_auto_auto] items-center gap-4">
 	<h2 class="h2">{data.currentClass.name}</h2>
-	<button type="button" class="btn preset-filled-primary-500"> Redigér hold </button>
+	<button type="button" class="btn preset-filled-primary-500" onclick={editClass}>
+		Redigér hold
+	</button>
 	<Modal
 		bind:open={openState}
 		triggerBase="btn preset-filled-primary-500"
@@ -48,8 +57,8 @@
 			</header>
 			<article>
 				<p class="opacity-60">
-					Holdet kan ikke efterfølgende genoprettes. (En backupfil kan ikke bruges til at genoprette
-					en enkelt hold uden at overskrive alle hold.)
+					Holdet kan <i>ikke</i> efterfølgende genoprettes. (En backupfil kan ikke bruges til at genoprette
+					et enkelt hold uden at overskrive alle hold.)
 				</p>
 			</article>
 			<footer class="flex justify-end gap-4">
@@ -59,4 +68,9 @@
 		{/snippet}
 	</Modal>
 </div>
+
+<!-- TODO: Add tabs for subpages (each with their own URL) -->
+<!-- Maybe something like one of these: https://flowbite.com/docs/components/tabs/ -->
+<!-- Or these: https://pagedone.io/docs/tabs -->
+
 {@render children()}

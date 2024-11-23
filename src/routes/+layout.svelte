@@ -57,7 +57,7 @@
 							<UsersRound size={32} />
 						</Nav.Tile>
 					{/each}
-					<Nav.Tile selected={$page.url.pathname == '/add/'} href="/add/" label="Tilføj hold">
+					<Nav.Tile selected={$page.url.pathname == '/tilføj/'} href="/tilføj/" label="Tilføj hold">
 						<CirclePlus size={32} />
 					</Nav.Tile>
 				{/snippet}

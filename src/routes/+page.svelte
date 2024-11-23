@@ -1,4 +1,4 @@
-<h1 class="h1">Vejledning</h1>
+<h2 class="h2">Vejledning</h2>
 <p>Fremgangsmåde:</p>
 <ol class="list-decimal ps-8">
 	<li>Opret klasse</li>

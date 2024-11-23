@@ -1,18 +1,16 @@
 <script lang="ts">
-	import { getContext } from 'svelte';
-	import { type ToastContext } from '@skeletonlabs/skeleton-svelte';
-	import StudentRow from '$lib/StudentRow.svelte';
-	import { validity } from '$lib/actions.svelte';
-	import { validateClassName } from '$lib/validation.svelte';
-	import { addClass } from '$lib/persistence.svelte';
-	import { goto } from '$app/navigation';
-	import { classNameUrlName } from '$lib/utils';
+	import { validity } from './actions.svelte';
+	import StudentRow from './StudentRow.svelte';
+	import { validateClassName } from './validation.svelte';
 
-	export const toast: ToastContext = getContext('toast');
+	type Props = {
+		className: string;
+		students: Student[];
+		id: idNumber;
+		onsubmit: (e: Event) => void;
+	};
 
-	let id = 0;
-	let className = $state('');
-	let students: Student[] = $state([]);
+	let { className = $bindable(), students = $bindable(), id, onsubmit }: Props = $props();
 
 	$effect.pre(() => {
 		const finalName = students[students.length - 1]?.name;
@@ -34,28 +32,9 @@
 			students = newStudents.filter((s) => s.name != '');
 		}
 	}
-
-	function addClassAndGoToClass(e: Event) {
-		e.preventDefault();
-		const name = $state.snapshot(className);
-		const studs = $state.snapshot(students).toSorted((a, b) => a.name.localeCompare(b.name));
-		addClass(name, studs)
-			.then(() => {
-				goto(`/hold/${classNameUrlName(name)}`, { invalidateAll: true });
-				return;
-			})
-			.catch((error) => {
-				toast.create({
-					title: 'Fejl',
-					description: error.message,
-					type: 'error'
-				});
-			});
-	}
 </script>
 
-<h2 class="h2">Tilføj hold</h2>
-<form id="form" class="space-y-4" onsubmit={addClassAndGoToClass}>
+<form id="form" class="space-y-4" {onsubmit}>
 	<h4 class="h4">Holdnavn</h4>
 	<input
 		class="input"

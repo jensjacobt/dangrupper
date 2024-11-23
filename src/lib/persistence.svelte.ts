@@ -17,7 +17,10 @@ export function getClasses(): Promise<Class[] | undefined> {
 	return get(classesKey);
 }
 
-export async function addClass(className: string, students: Student[]): Promise<void> {
+function trimAndValidateClass(
+	className: string,
+	students: Student[]
+): [className: string, students: Student[]] {
 	className = className.trim();
 	let message = validateClassName(className);
 	if (message) throw Error(message);
@@ -26,14 +29,18 @@ export async function addClass(className: string, students: Student[]): Promise<
 	message = validateStudents(students);
 	if (message) throw Error(message);
 
+	return [className, students];
+}
+
+export async function addClass(className: string, students: Student[]): Promise<void> {
+	[className, students] = trimAndValidateClass(className, students);
+
 	const classes = await get(classesKey);
-	if (Array.isArray(classes)) {
-		for (const c of classes) {
-			if (c.name == className) throw Error('Holdnavn allerede i brug – skriv et andet');
-		}
+	if (Array.isArray(classes) && classes.some((c) => c.name == className)) {
+		throw Error('Holdnavn allerede i brug – skriv et andet');
 	}
 
-	await update(classesKey, (classes) => {
+	await update(classesKey, (classes: Class[] | undefined) => {
 		return (classes || []).concat([
 			{
 				id: crypto.randomUUID(),
@@ -41,6 +48,30 @@ export async function addClass(className: string, students: Student[]): Promise<
 				students: students
 			}
 		]);
+	});
+}
+
+export async function editClass(id: string, className: string, students: Student[]): Promise<void> {
+	console.log('id:', id);
+	console.log('className:', className);
+	console.log('students:', students);
+
+	[className, students] = trimAndValidateClass(className, students);
+
+	const classes = (await get(classesKey)) as Class[] | undefined;
+	if (Array.isArray(classes) && !classes.some((c) => c.id)) {
+		throw Error('Holdet findes ikke i databasen');
+	}
+
+	await update(classesKey, (classes: Class[] | undefined) => {
+		let newClasses = classes || [];
+		const index = newClasses.findIndex((c) => c.id == id);
+		if (index >= 0) {
+			newClasses[index] = { id, name: className, students };
+		} else {
+			console.error('Holdet findes ikke i databasen (men blev fundet for et øjeblik siden)');
+		}
+		return newClasses;
 	});
 }
 
