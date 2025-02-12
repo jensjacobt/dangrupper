@@ -1,8 +1,8 @@
 <h2 class="h2">Vejledning</h2>
 <p>Fremgangsmåde:</p>
 <ol class="list-decimal ps-8">
-	<li>Opret klasse</li>
-	<li>Vælg klassen i menuen til venstre</li>
+	<li>Opret hold</li>
+	<li>Vælg holdet i menuen til venstre</li>
 	<li>Foruddefinér evt. nogle af medlemmerne</li>
 	<li>Dan bordgrupper</li>
 	<li>Gem bordgrupper</li>

@@ -23,5 +23,5 @@ declare type TableGroups = {
 	maxRecurring: number;
 	nLastGroups: number;
 	predefinedGroups: maybeIdNumber[][];
-	currentGroups: maybeIdNumber[][];
+	currentGroups: idNumber[][];
 };

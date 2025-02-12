@@ -2,15 +2,18 @@
 	import type { PageData } from './$types';
 	import Svelecte from 'svelecte';
 	import { setStored } from '$lib/persistence.svelte';
+	import { createTableGroups } from '$lib/groupGenerator';
 
 	let { data }: { data: PageData } = $props();
 
 	let tableGroups = $state() as TableGroups;
+	let displayGroups = $state() as Student[][];
 	let options = $state() as Student[];
 
 	$effect.pre(() => {
 		console.log('Reading in loaded data');
 		tableGroups = data.initialTableGroups;
+		displayGroups = groupsFromIds(data.initialTableGroups.currentGroups);
 		options = data.currentClass.students;
 	});
 
@@ -22,7 +25,7 @@
 
 	$effect(() => {
 		console.log('Storing table groups in DB');
-		setStored<TableGroups>(data.key, $state.snapshot(tableGroups));
+		setStored<TableGroups>(data.keyCurrent, $state.snapshot(tableGroups));
 	});
 
 	function clearPredefinedGroups() {
@@ -33,7 +36,40 @@
 		}
 	}
 
-	function createGroups() {}
+	function createGroups() {
+		let groups = null;
+		let warning = '';
+		try {
+			[groups, warning] = createTableGroups(
+				data.currentClass.students,
+				data.history,
+				$state.snapshot(tableGroups)
+			);
+		} catch (e) {
+			// TODO: Toast error
+		}
+		if (groups !== null) {
+			tableGroups.currentGroups = groups;
+			displayGroups = groupsFromIds(groups);
+		}
+	}
+
+	function groupsFromIds(ids: idNumber[][]): Student[][] {
+		console.log(ids);
+		let groups = [];
+		for (const groupIds of ids) {
+			let group = [];
+			for (const id of groupIds) {
+				const student = data.currentClass.students.find((s) => s.id == id);
+				if (student) {
+					group.push(student);
+				}
+			}
+			groups.push(group);
+		}
+		console.log(groups);
+		return groups;
+	}
 </script>
 
 <!------------------------------------------------------------------------------------------------>
@@ -84,11 +120,22 @@ sidste grupper.
 
 <h4 class="h4">Nye grupper</h4>
 <button class="btn preset-filled-primary-500" onclick={createGroups}> Dan grupper </button>
+<div class="flex flex-wrap gap-4">
+	{#each displayGroups as _, i}
+		<div class="card w-52">
+			<header class="card-header py-4"><h6 class="h6">Gruppe {i + 1}</h6></header>
+			<section class="flex flex-col gap-4">
+				{#each displayGroups[i] as _, j}
+					<div>{displayGroups[i][j].name}</div>
+				{/each}
+			</section>
+		</div>
+	{/each}
+</div>
 
-<p>Dan grupper-knap</p>
-<p>Gruppevisning</p>
 <p>Gem grupper-knap</p>
 <h4 class="h4">Eksporter gruppe</h4>
 
+<!-- 
 data.initialTableGroups:
-<pre class="pre">{JSON.stringify(data.initialTableGroups, null, 2)}</pre>
+<pre class="pre">{JSON.stringify(data.initialTableGroups, null, 2)}</pre> -->
