@@ -19,14 +19,14 @@ export const load: PageLoad = async ({ params, parent }) => {
 	const keyHistory = `${tableGroupsHistoryKey}_${currentClass.id}`;
 	try {
 		console.log('Getting table groups from DB');
-		const initialTableGroups: TableGroups = (await getStored<TableGroups>(keyCurrent)) || {
+		const initialTableGroups: TableGroups = (await getStored<TableGroups>(keyCurrent)) ?? {
 			maxRecurring: 0,
 			nLastGroups: 4,
 			predefinedGroups: [],
 			currentGroups: []
 		};
 
-		const history: idNumber[][][] = (await getStored<idNumber[][][]>(keyHistory)) || [];
+		const history: idNumber[][][] = (await getStored<idNumber[][][]>(keyHistory)) ?? [];
 
 		const numStudents = currentClass.students.length;
 		const numPredefined = initialTableGroups.predefinedGroups.reduce((s, e) => s + e.length, 0);

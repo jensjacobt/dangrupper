@@ -10,6 +10,9 @@
 	let displayGroups = $state() as Student[][];
 	let options = $state() as Student[];
 
+	let errorText = $state('');
+	let warningText = $state('');
+
 	$effect.pre(() => {
 		console.log('Reading in loaded data');
 		tableGroups = data.initialTableGroups;
@@ -37,28 +40,35 @@
 	}
 
 	function createGroups() {
-		let groups = null;
-		let warning = '';
 		try {
-			[groups, warning] = createTableGroups(
+			const [groups, overMaxPredefined] = createTableGroups(
 				data.currentClass.students,
 				data.history,
 				$state.snapshot(tableGroups)
 			);
-		} catch (e) {
-			// TODO: Toast error
-		}
-		if (groups !== null) {
 			tableGroups.currentGroups = groups;
 			displayGroups = groupsFromIds(groups);
+			errorText = groups.length ? '' : 'Grupper kunne ikke dannes. Justér evt. indstillingerne.';
+			if (overMaxPredefined.length == 0) {
+				warningText = '';
+			} else {
+				let groupStrs = [];
+				for (const g of groupsFromIds(overMaxPredefined)) {
+					groupStrs.push(`[${g.map((s) => s.name).join(', ')}]`);
+				}
+				const warningStart = 'Grupper med forudbestemte medlemmer, der har for mange gengangere: ';
+				warningText = warningStart + groupStrs.join(', ');
+			}
+		} catch (e) {
+			// TODO: Toast error
+			displayGroups = [];
 		}
 	}
 
-	function groupsFromIds(ids: idNumber[][]): Student[][] {
-		console.log(ids);
+	function groupsFromIds(ids: maybeIdNumber[][]): Student[][] {
 		let groups = [];
 		for (const groupIds of ids) {
-			let group = [];
+			let group: Student[] = [];
 			for (const id of groupIds) {
 				const student = data.currentClass.students.find((s) => s.id == id);
 				if (student) {
@@ -67,7 +77,6 @@
 			}
 			groups.push(group);
 		}
-		console.log(groups);
 		return groups;
 	}
 </script>
@@ -120,6 +129,8 @@ sidste grupper.
 
 <h4 class="h4">Nye grupper</h4>
 <button class="btn preset-filled-primary-500" onclick={createGroups}> Dan grupper </button>
+{#if errorText}<div class="card p-4 preset-filled-error-500">{errorText}</div>{/if}
+{#if warningText}<div class="card p-4 preset-filled-warning-500">{warningText}</div>{/if}
 <div class="flex flex-wrap gap-4">
 	{#each displayGroups as _, i}
 		<div class="card w-52">
@@ -134,6 +145,11 @@ sidste grupper.
 </div>
 
 <p>Gem grupper-knap</p>
+<!-- 
+// UP NEXT 
+// TODO: Lav Gem-knappen 
+// TODO: Få styr på opdatering af historik – lav noget tilsvarende som for tableGroups storage 
+-->
 <h4 class="h4">Eksporter gruppe</h4>
 
 <!-- 
