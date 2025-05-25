@@ -41,7 +41,7 @@ export async function addClass(className: string, students: Student[]): Promise<
 	}
 
 	await update(classesKey, (classes: Class[] | undefined) => {
-		return (classes || []).concat([
+		return (classes ?? []).concat([
 			{
 				id: crypto.randomUUID(),
 				name: className,
@@ -64,7 +64,7 @@ export async function editClass(id: string, className: string, students: Student
 	}
 
 	await update(classesKey, (classes: Class[] | undefined) => {
-		let newClasses = classes || [];
+		let newClasses = classes ?? [];
 		const index = newClasses.findIndex((c) => c.id == id);
 		if (index >= 0) {
 			newClasses[index] = { id, name: className, students };
@@ -77,9 +77,16 @@ export async function editClass(id: string, className: string, students: Student
 
 export async function removeClass(klass: Class): Promise<void> {
 	await update(classesKey, (classes: Class[] | undefined) => {
-		return (classes || []).filter((c) => c.name != klass.name);
+		return (classes ?? []).filter((c) => c.name != klass.name);
 	});
 	const storedKeys = await keys();
 	const keysToDelete = storedKeys.filter((key) => typeof key == 'string' && key.includes(klass.id));
 	await delMany(keysToDelete);
+}
+
+export async function addToHistory(historyKey: string, groups: idNumber[][]) {
+	console.log('adding to history:', groups);
+	await update(historyKey, (history: idNumber[][][] | undefined) => {
+		return (history ?? []).concat([groups]);
+	});
 }

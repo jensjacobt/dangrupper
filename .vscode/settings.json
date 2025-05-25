@@ -1,4 +1,4 @@
 {
     "autoHide.autoHideSideBar": true,
-    "editor.formatOnSave": true
+    "editor.formatOnSave": false
 }

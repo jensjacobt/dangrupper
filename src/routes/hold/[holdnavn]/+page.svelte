@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { PageData } from './$types';
 	import Svelecte from 'svelecte';
-	import { setStored } from '$lib/persistence.svelte';
+	import { addToHistory, setStored } from '$lib/persistence.svelte';
 	import { createTableGroups } from '$lib/groupGenerator';
 
 	let { data }: { data: PageData } = $props();
@@ -12,6 +12,7 @@
 
 	let errorText = $state('');
 	let warningText = $state('');
+	let saved = $state(false);
 
 	$effect.pre(() => {
 		console.log('Reading in loaded data');
@@ -41,6 +42,7 @@
 
 	function createGroups() {
 		try {
+			saved = false;
 			const [groups, overMaxPredefined] = createTableGroups(
 				data.currentClass.students,
 				data.history,
@@ -65,6 +67,17 @@
 		}
 	}
 
+	function saveGroups() {
+		if (tableGroups.currentGroups.length > 0) {
+			const snapshotCurrentGroups = $state.snapshot(tableGroups.currentGroups);
+			addToHistory(data.keyHistory, snapshotCurrentGroups).then(() => {
+				data.history.push(snapshotCurrentGroups);
+				tableGroups.currentGroups = [];
+				saved = true;
+			});
+		}
+	}
+
 	function groupsFromIds(ids: maybeIdNumber[][]): Student[][] {
 		let groups = [];
 		for (const groupIds of ids) {
@@ -86,21 +99,9 @@
 <h4 class="h3">Bordgrupper</h4>
 <h4 class="h4">Indstillinger</h4>
 Den enkelte elev skal opleve højst
-<input
-	class="input mx-2 inline-block w-16"
-	type="number"
-	min="0"
-	max="3"
-	bind:value={tableGroups.maxRecurring}
-/>
+<input class="input mx-2 inline-block w-16"	type="number" min="0" max="3" bind:value={tableGroups.maxRecurring}/>
 gengangere fra sine
-<input
-	class="input mx-2 inline-block w-16"
-	type="number"
-	min="0"
-	max="20"
-	bind:value={tableGroups.nLastGroups}
-/>
+<input class="input mx-2 inline-block w-16" type="number" min="0" max="20" bind:value={tableGroups.nLastGroups}/>
 sidste grupper.
 
 <h4 class="h4">Forudbestemte medlemmer</h4>
@@ -144,13 +145,15 @@ sidste grupper.
 	{/each}
 </div>
 
-<p>Gem grupper-knap</p>
-<!-- 
-// UP NEXT 
-// TODO: Lav Gem-knappen 
-// TODO: Få styr på opdatering af historik – lav noget tilsvarende som for tableGroups storage 
--->
-<h4 class="h4">Eksporter gruppe</h4>
+{#if displayGroups.length && !saved}
+	<button class="btn preset-filled-primary-500" onclick={saveGroups}> Gem grupper </button>
+{/if}
+{#if saved}
+	<div class="card p-4 preset-filled-success-500">Grupper gemt!</div>
+	<h4 class="h4">Eksporter grupper</h4>
+{/if}
+
+
 
 <!-- 
 data.initialTableGroups:

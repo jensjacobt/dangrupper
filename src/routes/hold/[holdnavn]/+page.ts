@@ -4,7 +4,7 @@ import type { PageLoad } from './$types';
 import { error } from '@sveltejs/kit';
 
 const tableGroupsKey = 'tableGroups';
-const tableGroupsHistoryKey = '${tableGroupsKey}-history';
+const tableGroupsHistoryKey = `${tableGroupsKey}-history`;
 
 function predefinedHasInvalidId(predefinedGroups: maybeIdNumber[][], students: Student[]) {
 	const studentIds = students.map((s) => s.id);
