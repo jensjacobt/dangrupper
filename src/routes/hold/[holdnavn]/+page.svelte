@@ -1,10 +1,10 @@
 <script lang="ts">
-	import type { PageData } from './$types';
+	import type { PageProps } from './$types';
 	import Svelecte from 'svelecte';
 	import { addToHistory, setStored } from '$lib/persistence.svelte';
 	import { createTableGroups } from '$lib/groupGenerator';
 
-	let { data }: { data: PageData } = $props();
+	let { data }: PageProps = $props();
 
 	let tableGroups = $state() as TableGroups;
 	let displayGroups = $state() as Student[][];

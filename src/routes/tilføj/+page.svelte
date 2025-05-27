@@ -1,12 +1,9 @@
 <script lang="ts">
-	import { getContext } from 'svelte';
-	import { type ToastContext } from '@skeletonlabs/skeleton-svelte';
-	import { addClass } from '$lib/persistence.svelte';
 	import { goto } from '$app/navigation';
+	import { addClass } from '$lib/persistence.svelte';
+	import { toaster } from '$lib/toaster-svelte';
 	import { classNameUrlName } from '$lib/utils';
 	import ClassForm from '$lib/ClassForm.svelte';
-
-	export const toast: ToastContext = getContext('toast');
 
 	let id = 0;
 	let className = $state('');
@@ -22,10 +19,9 @@
 				return;
 			})
 			.catch((error) => {
-				toast.create({
+				toaster.error({
 					title: 'Fejl',
-					description: error.message,
-					type: 'error'
+					description: `Kunne ikke tilføje hold. ${error.message}`,
 				});
 			});
 	}

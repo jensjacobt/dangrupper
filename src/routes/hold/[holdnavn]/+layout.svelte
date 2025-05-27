@@ -1,17 +1,15 @@
 <script lang="ts">
-	import type { LayoutData } from './$types';
+	import type { LayoutProps } from './$types';
 	import { removeClass } from '$lib/persistence.svelte';
 	import { goto } from '$app/navigation';
-	import { getContext, type Snippet } from 'svelte';
-	import { type ToastContext } from '@skeletonlabs/skeleton-svelte';
+	import { toaster } from '$lib/toaster-svelte';
 	import { Modal } from '@skeletonlabs/skeleton-svelte';
 	import { classNameUrlName } from '$lib/utils';
 
-	let { children, data }: { children: Snippet; data: LayoutData } = $props();
-
-	export const toast: ToastContext = getContext('toast');
+	let { children, data }: LayoutProps = $props();
 
 	let openState = $state(false);
+
 	function modalClose() {
 		openState = false;
 	}
@@ -29,10 +27,9 @@
 				goto('/', { invalidateAll: true });
 			})
 			.catch((error) => {
-				toast.create({
+				toaster.error({
 					title: 'Fejl',
-					description: error.message,
-					type: 'error'
+					description: `Kunne ikke slette hold. (Fejlbesked: ${error.message})`,
 				});
 			});
 	}
@@ -45,7 +42,8 @@
 		Redigér hold
 	</button>
 	<Modal
-		bind:open={openState}
+		open={openState}
+		onOpenChange={(e) => (openState = e.open)}
 		triggerBase="btn preset-filled-primary-500"
 		contentBase="card bg-surface-100-900 p-4 space-y-4 shadow-xl max-w-screen-sm"
 		backdropClasses="backdrop-blur-sm"

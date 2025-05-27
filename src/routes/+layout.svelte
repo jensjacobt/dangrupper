@@ -1,8 +1,8 @@
 <script lang="ts">
-	import type { Snippet } from 'svelte';
-	import type { LayoutData } from './$types';
-	import { page } from '$app/stores';
-	import { Nav, ToastProvider } from '@skeletonlabs/skeleton-svelte';
+	import type { LayoutProps } from './$types';
+	import { page } from '$app/state';
+	import { Navigation, Toaster } from '@skeletonlabs/skeleton-svelte';
+  	import { toaster } from '$lib/toaster-svelte'; 
 	import {
 		CircleHelp,
 		CirclePlus,
@@ -15,12 +15,14 @@
 	import '../app.css';
 	import { classNameUrlName } from '$lib/utils';
 
-	let { children, data }: { children: Snippet; data: LayoutData } = $props();
+	let { children, data }: LayoutProps = $props();
 
 	function pushSwitch() {
 		document.documentElement.classList.toggle('dark');
 	}
 </script>
+
+<Toaster {toaster}></Toaster>
 
 <div class="grid h-screen grid-rows-[auto_1fr]">
 	<!-- Header -->
@@ -45,29 +47,25 @@
 	<!-- Grid Columns -->
 	<div class="grid grid-cols-1 grid-cols-[auto_1fr]">
 		<!-- Left Sidebar -->
-		<aside class="card grid h-full w-full grid-cols-[auto_1fr] border-[1px] border-surface-100-900">
-			<Nav.Rail>
-				{#snippet header()}
-					<Nav.Tile selected={$page.url.pathname == '/'} href="/" label="Vejledning">
-						<CircleHelp size={32} />
-					</Nav.Tile>
-					{#each data.classes.map((c) => c.name).toSorted() as className}
-						{@const url = `/hold/${classNameUrlName(className)}/`}
-						<Nav.Tile selected={$page.url.pathname.startsWith(url)} label={className} href={url}>
-							<UsersRound size={32} />
-						</Nav.Tile>
-					{/each}
-					<Nav.Tile selected={$page.url.pathname == '/tilføj/'} href="/tilføj/" label="Tilføj hold">
-						<CirclePlus size={32} />
-					</Nav.Tile>
-				{/snippet}
-			</Nav.Rail>
-		</aside>
+		<Navigation.Rail classes="h-full w-full preset-filled-surface-100-900">
+			{#snippet header()}
+				<Navigation.Tile selected={page.url.pathname == '/'} href="/" label="Vejledning">
+					<CircleHelp size={32} />
+				</Navigation.Tile>
+				{#each data.classes.map((c) => c.name).toSorted() as className}
+					{@const url = `/hold/${classNameUrlName(className)}/`}
+					<Navigation.Tile selected={page.url.pathname.startsWith(url)} label={className} href={url}>
+						<UsersRound size={32} />
+					</Navigation.Tile>
+				{/each}
+				<Navigation.Tile selected={page.url.pathname == '/tilføj/'} href="/tilføj/" label="Tilføj hold">
+					<CirclePlus size={32} />
+				</Navigation.Tile>
+			{/snippet}
+		</Navigation.Rail>
 		<!-- Main Content -->
 		<main class="container space-y-4 p-4 ps-8 pt-6">
-			<ToastProvider>
-				{@render children()}
-			</ToastProvider>
+			{@render children()}
 		</main>
 	</div>
 </div>

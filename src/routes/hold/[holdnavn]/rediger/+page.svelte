@@ -1,15 +1,12 @@
 <script lang="ts">
-	import { getContext } from 'svelte';
-	import { type ToastContext } from '@skeletonlabs/skeleton-svelte';
+	import { toaster } from '$lib/toaster-svelte';
 	import { goto } from '$app/navigation';
 	import { classNameUrlName } from '$lib/utils';
 	import ClassForm from '$lib/ClassForm.svelte';
-	import type { PageData } from '../$types';
+	import type { PageProps } from '../$types';
 	import { editClass } from '$lib/persistence.svelte';
 
-	export const toast: ToastContext = getContext('toast');
-
-	let { data }: { data: PageData } = $props();
+	let { data }: PageProps = $props();
 
 	let id = 1 + data.currentClass.students.reduce((prevMax, s) => Math.max(prevMax, s.id), 0);
 	let className = $state(data.currentClass.name);
@@ -26,10 +23,9 @@
 				return;
 			})
 			.catch((error) => {
-				toast.create({
+				toaster.error({
 					title: 'Fejl',
-					description: error.message,
-					type: 'error'
+					description: `Kunne ikke redigere hold. ${error.message}`,
 				});
 			});
 	}

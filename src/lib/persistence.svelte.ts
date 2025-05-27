@@ -84,6 +84,7 @@ export async function removeClass(klass: Class): Promise<void> {
 	await delMany(keysToDelete);
 }
 
+/* Table Groups History */
 export async function addToHistory(historyKey: string, groups: idNumber[][]) {
 	console.log('adding to history:', groups);
 	await update(historyKey, (history: idNumber[][][] | undefined) => {
