@@ -2,6 +2,17 @@ export function getEmptyPredefinedGroups(numStudents: number): maybeIdNumber[][]
 	return getGroupSizes(numStudents).map((gs) => Array(gs).fill(null));
 }
 
+const random = (function() {
+	if (!crypto) return Math.random
+
+	var max = Math.pow(2, 32)
+	var u32 = new Uint32Array(1)
+
+	return function random () {
+		return crypto.getRandomValues(u32)[0] / max
+	}
+})();
+
 type TableOfPartners = Map<idNumber, Set<idNumber>>;
 
 export function createTableGroups(
@@ -14,7 +25,6 @@ export function createTableGroups(
 	const overMaxPredefined: maybeIdNumber[][] = [];
 	const tableOfPartners = getTableOfPreviousPartners(studentIds, history, tableGroups.nLastGroups);
 	const predefinedGroups = tableGroups.predefinedGroups.toReversed();
-	const random = getRandom();
 
 	let preassigned = new Set<idNumber>();
 	const nonNull = (s: maybeIdNumber) => s !== null;
@@ -47,7 +57,7 @@ export function createTableGroups(
 			if (predefined.length == 0) break;
 
 			const pred = predefined[predefined.length - 1];
-			const group = groupFromPredefined(pred, rest, random);
+			const group = groupFromPredefined(pred, rest);
 			if (!tooManyReps(tableOfPartners, new Set(group), maxReps)) {
 				rest = rest.filter((s) => !group.includes(s));
 				predefined.pop();
@@ -63,7 +73,7 @@ export function createTableGroups(
 	return [[], overMaxPredefined];
 }
 
-function groupFromPredefined(predefinedGroup: maybeIdNumber[], students: idNumber[], random: () => number): idNumber[] {
+function groupFromPredefined(predefinedGroup: maybeIdNumber[], students: idNumber[]): idNumber[] {
 	const set = new Set<idNumber>();
 	const group: idNumber[] = [];
 	let oldIndexes: number[] = [];
@@ -126,8 +136,7 @@ function getTableOfPreviousPartners(
 
 function getRandomGroups(students: Student[]): idNumber[][] {
 	const shuffled = students.map((s) => s.id);
-	const random = getRandom();
-	shuffleArray(shuffled, random);
+	shuffleArray(shuffled);
 	const sizes = getGroupSizes(students.length);
 	const groups = [];
 	let i = 0;
@@ -138,7 +147,7 @@ function getRandomGroups(students: Student[]): idNumber[][] {
 	return groups;
 }
 
-function shuffleArray(array: any[], random: () => number) {
+function shuffleArray(array: any[]) {
 	for (let i = array.length - 1; i >= 0; i--) {
 		const j = Math.floor(random() * (i + 1));
 		[array[i], array[j]] = [array[j], array[i]];
@@ -163,13 +172,4 @@ function getGroupSizes(n: number, g: number = 4): number[] {
 	return a;
 }
 
-function getRandom() {
-	if (!crypto) return Math.random
 
-	var max = Math.pow(2, 32)
-	var u32 = new Uint32Array(1)
-
-	return function random () {
-		return crypto.getRandomValues(u32)[0] / max
-	}
-}

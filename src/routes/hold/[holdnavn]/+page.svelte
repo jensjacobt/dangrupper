@@ -153,7 +153,7 @@ sidste grupper.
 	<h4 class="h4">Eksporter grupper</h4>
 {/if}
 
-
+<div style="height: 80vh"></div>
 
 <!-- 
 data.initialTableGroups:
