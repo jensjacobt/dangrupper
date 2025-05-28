@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { validity } from './actions.svelte';
-	import StudentRow from './StudentRow.svelte';
 	import { validateClassName } from './validation.svelte';
 
 	type Props = {
@@ -49,7 +48,18 @@
 	Tomme felter ignoreres og rækkefølgen er ligegyldig. Tilføj hurtigt flere elevnavne ved at indsætte
 	kopieret tekst med et navn pr. linje. Indsæt med ctrl+v eller command+v.
 	{#each students as student, i (student.id)}
-		<StudentRow itemNumber={i + 1} bind:student={students[i]} {onpaste} />
+		<div class="flex items-center gap-2">
+			<span class="badge-icon">{(i+1) + '.'}</span>
+			<input
+				class="input"
+				type="text"
+				placeholder="Navn"
+				bind:value={student.name}
+				onpaste={onpaste}
+				autocomplete="off"
+				spellcheck="false"
+			/>
+		</div>
 	{/each}
 	<!-- Disable enter to submit -->
 	<button type="submit" disabled style="display: none" aria-hidden="true"></button>

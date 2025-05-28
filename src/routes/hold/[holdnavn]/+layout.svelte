@@ -25,6 +25,9 @@
 		removeClass(data.currentClass)
 			.then(() => {
 				goto('/', { invalidateAll: true });
+				toaster.success({
+					description: `Slettede holdet ${data.currentClass.name}.`,
+				});
 			})
 			.catch((error) => {
 				toaster.error({
@@ -57,6 +60,7 @@
 				<p class="opacity-60">
 					Holdet kan <i>ikke</i> efterfølgende genoprettes. (En backupfil kan ikke bruges til at genoprette
 					et enkelt hold uden at overskrive alle hold.)
+					<!-- TODO: Tjek om man stadig ikke kan importere hold enkeltvis -->
 				</p>
 			</article>
 			<footer class="flex justify-end gap-4">
@@ -67,7 +71,7 @@
 	</Modal>
 </div>
 
-<!-- TODO: Add tabs for subpages (each with their own URL) -->
+<!-- : Add tabs for subpages (each with their own URL) -->
 <!-- Maybe something like one of these: https://flowbite.com/docs/components/tabs/ -->
 <!-- Or these: https://pagedone.io/docs/tabs -->
 
