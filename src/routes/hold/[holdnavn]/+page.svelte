@@ -3,6 +3,8 @@
 	import Svelecte from 'svelecte';
 	import { addToHistory, setStored } from '$lib/persistence.svelte';
 	import { createTableGroups } from '$lib/groupGenerator';
+	import OutputTableHorizontal from '$lib/OutputTableHorizontal.svelte';
+	import { toaster } from '$lib/toaster-svelte';
 
 	let { data }: PageProps = $props();
 
@@ -68,14 +70,14 @@
 	}
 
 	function saveGroups() {
-		if (tableGroups.currentGroups.length > 0) {
-			const snapshotCurrentGroups = $state.snapshot(tableGroups.currentGroups);
-			addToHistory(data.keyHistory, snapshotCurrentGroups).then(() => {
+if (tableGroups.currentGroups.length > 0) {
+		const snapshotCurrentGroups = $state.snapshot(tableGroups.currentGroups);
+					addToHistory(data.keyHistory, snapshotCurrentGroups).then(() => {
 				data.history.push(snapshotCurrentGroups);
-				tableGroups.currentGroups = [];
+tableGroups.currentGroups = [];
 				saved = true;
 			});
-		}
+				}
 	}
 
 	function groupsFromIds(ids: maybeIdNumber[][]): Student[][] {
@@ -107,7 +109,7 @@ sidste grupper.
 <h4 class="h4">Forudbestemte medlemmer</h4>
 <div class="flex flex-wrap gap-4">
 	{#each tableGroups.predefinedGroups as _, i}
-		<div class="card w-52">
+		<div class="card w-40">
 			<header class="card-header py-4"><h6 class="h6">Gruppe {i + 1}</h6></header>
 			<section class="flex flex-col gap-4">
 				{#each tableGroups.predefinedGroups[i] as _, j}
@@ -134,23 +136,24 @@ sidste grupper.
 {#if warningText}<div class="card p-4 preset-filled-warning-500">{warningText}</div>{/if}
 <div class="flex flex-wrap gap-4">
 	{#each displayGroups as _, i}
-		<div class="card w-52">
+		<div class="card w-40">
 			<header class="card-header py-4"><h6 class="h6">Gruppe {i + 1}</h6></header>
 			<section class="flex flex-col gap-4">
 				{#each displayGroups[i] as _, j}
-					<div>{displayGroups[i][j].name}</div>
+					<div style="overflow: hidden">{displayGroups[i][j].name}</div>
 				{/each}
 			</section>
 		</div>
 	{/each}
 </div>
 
-{#if displayGroups.length && !saved}
+{#if !saved && displayGroups.length}
 	<button class="btn preset-filled-primary-500" onclick={saveGroups}> Gem grupper </button>
 {/if}
-{#if saved}
+{#if saved && displayGroups.length}
 	<div class="card p-4 preset-filled-success-500">Grupper gemt!</div>
 	<h4 class="h4">Eksporter grupper</h4>
+	<OutputTableHorizontal groups={displayGroups} />
 {/if}
 
 <div style="height: 80vh"></div>
