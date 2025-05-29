@@ -23,7 +23,10 @@ export const load: PageLoad = async ({ params, parent }) => {
 			maxRecurring: 0,
 			nLastGroups: 4,
 			predefinedGroups: [],
-			currentGroups: []
+			currentGroups: [],
+            warningText: '',
+            errorText: '',
+            saved: false
 		};
 
 		const history: idNumber[][][] = (await getStored<idNumber[][][]>(keyHistory)) ?? [];

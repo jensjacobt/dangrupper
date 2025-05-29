@@ -24,4 +24,7 @@ declare type TableGroups = {
 	nLastGroups: number;
 	predefinedGroups: maybeIdNumber[][];
 	currentGroups: idNumber[][];
+	warningText: string;
+    errorText: string;
+    saved: boolean;
 };

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { toaster } from "./toaster-svelte";
+	import { toaster } from "../../../lib/toaster-svelte";
 
     const { groups }: { groups: Student[][] } = $props();
 
@@ -16,31 +16,30 @@
         ['#FFFFB1', '#ECE231']
     ];
     
-    const w = 100;
-    const h = 28;
-    const p = 5;
-    const s = 2;
-    const fw = w * groups.length + s;
-    const fh = h * 5 + s;
-
 	$effect(() => {
+        const w = 100;
+        const h = 28;
+        const p = 5;
+        const s = 2;
+        const fw = w * groups.length + s;
+        const fh = h * 5 + s;
+
 		const ctx = canvas.getContext('2d', { alpha: false });
         if (!ctx) return;
 
-        canvas.width = fw;
-        canvas.height = fh;
+        const width = fw;
+        const height = fh;
 
         // Scale canvas according to DPR
         const dpr = window.devicePixelRatio;
-        const rect = canvas.getBoundingClientRect();
 
-        canvas.width = rect.width * dpr;
-        canvas.height = rect.height * dpr;
+        canvas.width = width * dpr;
+        canvas.height = height * dpr;
 
         ctx.scale(dpr, dpr);
 
-        canvas.style.width = `${rect.width}px`;
-        canvas.style.height = `${rect.height}px`;
+        canvas.style.width = `${width}px`;
+        canvas.style.height = `${height}px`;
 
         // Draw
         ctx.fillStyle = 'white';
@@ -105,5 +104,5 @@
 Din browser understøtter ikke canvas i HTML. Prøv en anden browser.
 </canvas>
 
-<button class="btn preset-filled-primary-500" onclick={copyCanvasToClipboard}> Kopier billede </button>
+<button class="btn mr-2 preset-filled-primary-500" onclick={copyCanvasToClipboard}> Kopier billede </button>
 <button class="btn preset-outlined-primary-500" onclick={copyTextForExcel}> Kopier til Excel </button>

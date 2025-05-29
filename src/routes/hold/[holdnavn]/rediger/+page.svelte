@@ -33,3 +33,4 @@
 
 <h3 class="h3">Redigér hold</h3>
 <ClassForm onsubmit={editClassAndGoToClass} bind:className bind:students {id} />
+<div style="height: 30vh"></div>

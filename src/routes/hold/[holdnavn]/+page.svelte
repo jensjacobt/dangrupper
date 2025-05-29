@@ -3,7 +3,7 @@
 	import Svelecte from 'svelecte';
 	import { addToHistory, setStored } from '$lib/persistence.svelte';
 	import { createTableGroups } from '$lib/groupGenerator';
-	import OutputTableHorizontal from '$lib/OutputTableHorizontal.svelte';
+	import OutputTableHorizontal from './OutputTableHorizontal.svelte';
 	import { toaster } from '$lib/toaster-svelte';
 
 	let { data }: PageProps = $props();
@@ -11,10 +11,6 @@
 	let tableGroups = $state() as TableGroups;
 	let displayGroups = $state() as Student[][];
 	let options = $state() as Student[];
-
-	let errorText = $state('');
-	let warningText = $state('');
-	let saved = $state(false);
 
 	$effect.pre(() => {
 		console.log('Reading in loaded data');
@@ -44,7 +40,7 @@
 
 	function createGroups() {
 		try {
-			saved = false;
+			tableGroups.saved = false;
 			const [groups, overMaxPredefined] = createTableGroups(
 				data.currentClass.students,
 				data.history,
@@ -52,16 +48,16 @@
 			);
 			tableGroups.currentGroups = groups;
 			displayGroups = groupsFromIds(groups);
-			errorText = groups.length ? '' : 'Grupper kunne ikke dannes. Justér evt. indstillingerne.';
+			tableGroups.errorText = groups.length ? '' : 'Grupper kunne ikke dannes. Justér evt. indstillingerne.';
 			if (overMaxPredefined.length == 0) {
-				warningText = '';
+				tableGroups.warningText = '';
 			} else {
 				let groupStrs = [];
 				for (const g of groupsFromIds(overMaxPredefined)) {
 					groupStrs.push(`[${g.map((s) => s.name).join(', ')}]`);
 				}
 				const warningStart = 'Grupper med forudbestemte medlemmer, der har for mange gengangere: ';
-				warningText = warningStart + groupStrs.join(', ');
+				tableGroups.warningText = warningStart + groupStrs.join(', ');
 			}
 		} catch (e) {
 			// TODO: Toast error
@@ -69,16 +65,20 @@
 		}
 	}
 
-	function saveGroups() {
-if (tableGroups.currentGroups.length > 0) {
-		const snapshotCurrentGroups = $state.snapshot(tableGroups.currentGroups);
-					addToHistory(data.keyHistory, snapshotCurrentGroups).then(() => {
-				data.history.push(snapshotCurrentGroups);
-tableGroups.currentGroups = [];
-				saved = true;
-			});
-				}
-	}
+    function saveGroups() {
+        const snapshotCurrentGroups = $state.snapshot(tableGroups.currentGroups);
+        if (JSON.stringify(snapshotCurrentGroups) !== JSON.stringify(data.history.at(-1))) {
+            addToHistory(data.keyHistory, snapshotCurrentGroups).then(() => {
+                data.history.push(snapshotCurrentGroups);
+                tableGroups.saved = true;
+            });
+        } else {
+            tableGroups.saved = true;
+            toaster.warning({
+                description: 'Grupperne er allerede tilføjet til historikken'
+            });
+        }
+    }
 
 	function groupsFromIds(ids: maybeIdNumber[][]): Student[][] {
 		let groups = [];
@@ -98,7 +98,7 @@ tableGroups.currentGroups = [];
 
 <!------------------------------------------------------------------------------------------------>
 
-<h4 class="h3">Bordgrupper</h4>
+<h4 class="h3 mt-6">Bordgrupper</h4>
 <h4 class="h4">Indstillinger</h4>
 Den enkelte elev skal opleve højst
 <input class="input mx-2 inline-block w-16"	type="number" min="0" max="3" bind:value={tableGroups.maxRecurring}/>
@@ -106,12 +106,12 @@ gengangere fra sine
 <input class="input mx-2 inline-block w-16" type="number" min="0" max="20" bind:value={tableGroups.nLastGroups}/>
 sidste grupper.
 
-<h4 class="h4">Forudbestemte medlemmer</h4>
+<h4 class="h4 mb-0 mt-6">Forudbestemte medlemmer</h4>
 <div class="flex flex-wrap gap-4">
 	{#each tableGroups.predefinedGroups as _, i}
 		<div class="card w-40">
-			<header class="card-header py-4"><h6 class="h6">Gruppe {i + 1}</h6></header>
-			<section class="flex flex-col gap-4">
+			<header class="card-header pt-4 pb-2"><h6 class="h6">Gruppe {i + 1}</h6></header>
+			<section class="flex flex-col gap-3">
 				{#each tableGroups.predefinedGroups[i] as _, j}
 					<Svelecte
 						{options}
@@ -126,33 +126,41 @@ sidste grupper.
 		</div>
 	{/each}
 </div>
-<button class="btn preset-filled-primary-500" onclick={clearPredefinedGroups}>
+<button class="btn mr-3 preset-filled-primary-500" onclick={createGroups}> 
+	Dan grupper 
+</button>
+<button class="btn preset-outlined-primary-500" onclick={clearPredefinedGroups}>
 	Ryd forudbestemte medlemmer
 </button>
 
-<h4 class="h4">Nye grupper</h4>
-<button class="btn preset-filled-primary-500" onclick={createGroups}> Dan grupper </button>
-{#if errorText}<div class="card p-4 preset-filled-error-500">{errorText}</div>{/if}
-{#if warningText}<div class="card p-4 preset-filled-warning-500">{warningText}</div>{/if}
-<div class="flex flex-wrap gap-4">
-	{#each displayGroups as _, i}
-		<div class="card w-40">
-			<header class="card-header py-4"><h6 class="h6">Gruppe {i + 1}</h6></header>
-			<section class="flex flex-col gap-4">
-				{#each displayGroups[i] as _, j}
-					<div style="overflow: hidden">{displayGroups[i][j].name}</div>
-				{/each}
-			</section>
-		</div>
-	{/each}
-</div>
+{#if displayGroups.length}
+	<h4 class="h4 mb-0 mt-6">Nye grupper</h4>
+	{#if tableGroups.errorText}
+		<div class="card p-4 preset-filled-error-500">{tableGroups.errorText}</div>
+	{/if}
+	{#if tableGroups.warningText}
+		<div class="card p-4 preset-filled-warning-500">{tableGroups.warningText}</div>
+	{/if}
+	<div class="flex flex-wrap gap-4">
+		{#each displayGroups as _, i}
+			<div class="card w-40">
+				<header class="card-header pt-4 pb-2"><h6 class="h6">Gruppe {i + 1}</h6></header>
+				<section class="flex flex-col gap-3">
+					{#each displayGroups[i] as _, j}
+						<div class="overflow-hidden whitespace-nowrap" style="overflow: hidden; white-space: nowrap">{displayGroups[i][j].name}</div>
+					{/each}
+				</section>
+			</div>
+		{/each}
+	</div>
+{/if}
 
-{#if !saved && displayGroups.length}
+{#if !tableGroups.saved && displayGroups.length}
 	<button class="btn preset-filled-primary-500" onclick={saveGroups}> Gem grupper </button>
 {/if}
-{#if saved && displayGroups.length}
-	<div class="card p-4 preset-filled-success-500">Grupper gemt!</div>
-	<h4 class="h4">Eksporter grupper</h4>
+{#if tableGroups.saved && displayGroups.length}
+	<div class="card p-4 w-80 preset-tonal-success">Grupper gemt!</div>
+	<h4 class="h4 mt-6">Eksporter grupper</h4>
 	<OutputTableHorizontal groups={displayGroups} />
 {/if}
 
