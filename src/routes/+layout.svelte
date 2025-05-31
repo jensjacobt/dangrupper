@@ -14,11 +14,31 @@
 	} from 'lucide-svelte';
 	import '../app.css';
 	import { classNameUrlName } from '$lib/utils';
+	import { exportDatabaseToJson } from '$lib/persistence.svelte';
 
 	let { children, data }: LayoutProps = $props();
 
 	function pushSwitch() {
 		document.documentElement.classList.toggle('dark');
+	}
+
+	function backupWholeDatabase() {
+		exportDatabaseToJson()
+			.then((json) => {
+				console.log(json);
+				let a = document.createElement("a");
+				a.href = window.URL.createObjectURL(new Blob([json], {type: "text/plain"}));
+				a.download = `dangrupper-export-${(new Date().toLocaleString())}.json`;
+				a.click();
+				a.remove();
+			}, 
+			(e) => { 
+				console.error('export to json failed:', e);
+				toaster.error({
+					title: "Eksport fejlede",
+					description: e.message
+				});
+			});
 	}
 </script>
 
@@ -38,7 +58,7 @@
 				class="btn hover:preset-tonal"
 				title="Skift mellem lyst og mørkt udseende"><SunMoon size={28} /></button
 			>
-			<button class="btn hover:preset-tonal" title="Download backup"><Download size={28} /></button>
+			<button class="btn hover:preset-tonal" title="Download backup" onclick={backupWholeDatabase}><Download size={28} /></button>
 			<button class="btn hover:preset-tonal" title="Upload tidligere backup">
 				<Upload size={28} />
 			</button>

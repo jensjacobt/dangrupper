@@ -1,4 +1,4 @@
-import { delMany, get, keys, set, update } from 'idb-keyval';
+import { delMany, get, keys, set, update, entries } from 'idb-keyval';
 import { validateClassName, validateStudents } from './validation.svelte';
 
 /* Get from and set in DB */
@@ -90,4 +90,22 @@ export async function addToHistory(historyKey: string, groups: idNumber[][]) {
 	await update(historyKey, (history: idNumber[][][] | undefined) => {
 		return (history ?? []).concat([groups]);
 	});
+}
+
+/* Export */
+export async function exportDatabaseToJson() {
+	const a = await entries();
+	let classesIndex = -1;
+	for (let i = 0; i < a.length; i++) {
+		if (a[i][0] === 'classes') {
+			classesIndex = i;
+			break;
+		}
+	}
+	if (classesIndex > -1) {
+		const obj = {'classes': a[classesIndex][1], keyval: a.toSpliced(classesIndex, 1)};
+		return JSON.stringify(obj);
+	} else {
+		throw Error('Ingen klasser er oprettet');
+	}
 }
