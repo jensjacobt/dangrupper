@@ -54,13 +54,11 @@
 		{#snippet trigger()}Slet hold{/snippet}
 		{#snippet content()}
 			<header class="flex justify-between">
-				<h2 class="h4">Vil du virkelig slette holdet "{data.currentClass.name}"?</h2>
+				<h2 class="h4">Vil du slette holdet "{data.currentClass.name}"?</h2>
 			</header>
 			<article>
 				<p class="opacity-60">
-					Holdet kan <i>ikke</i> efterfølgende genoprettes. (En backupfil kan ikke bruges til at genoprette
-					et enkelt hold uden at overskrive alle hold.)
-					<!-- TODO: Tjek om man stadig ikke kan importere hold enkeltvis -->
+					Tip: Tag en backup, inden du sletter holdet 😊
 				</p>
 			</article>
 			<footer class="flex justify-end gap-4">

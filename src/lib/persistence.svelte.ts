@@ -1,4 +1,4 @@
-import { delMany, get, keys, set, update, entries } from 'idb-keyval';
+import { delMany, entries, get, keys, set, setMany, update } from 'idb-keyval';
 import { validateClassName, validateStudents } from './validation.svelte';
 
 /* Get from and set in DB */
@@ -13,8 +13,8 @@ export function setStored<T>(key: string, value: T): void {
 /* Classes */
 const classesKey = 'classes';
 
-export function getClasses(): Promise<Class[] | undefined> {
-	return get(classesKey);
+export async function getClasses(): Promise<Class[]> {
+	return (await get(classesKey)) ?? [];
 }
 
 function trimAndValidateClass(
@@ -52,10 +52,6 @@ export async function addClass(className: string, students: Student[]): Promise<
 }
 
 export async function editClass(id: string, className: string, students: Student[]): Promise<void> {
-	console.log('id:', id);
-	console.log('className:', className);
-	console.log('students:', students);
-
 	[className, students] = trimAndValidateClass(className, students);
 
 	const classes = (await get(classesKey)) as Class[] | undefined;
@@ -108,4 +104,31 @@ export async function exportDatabaseToJson() {
 	} else {
 		throw Error('Ingen klasser er oprettet');
 	}
+}
+
+/* Import */
+export async function getConflictingClasses(importObject: ImportObject): Promise<ImportObject> {
+	const currentClasses: Class[] = await get(classesKey) ?? [];
+	for (let i = 0; i < importObject.classes.length; i++) {
+		const klass = importObject.classes[i];
+		for (const currentClass of currentClasses) {
+			if (klass.id == currentClass.id) {
+				importObject.classes[i].conflictingClass = currentClass;
+				break;
+			}
+		}
+	}
+	return importObject;
+}
+
+export async function importClasses(importObject: ImportObject, idsToImport: string[]) {
+	const classesToImport = importObject.classes.filter(c => idsToImport.includes(c.id));
+	const otherKeyvals = importObject.keyval.filter(kv => idsToImport.some(id => kv[0].includes(id)));
+
+	const currentClasses = await getClasses();
+	const newClasses = currentClasses.concat(classesToImport);
+	
+	const keyvals = otherKeyvals.concat([[classesKey, newClasses]]);
+
+	await setMany(keyvals);
 }

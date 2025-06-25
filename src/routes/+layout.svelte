@@ -1,8 +1,8 @@
 <script lang="ts">
 	import type { LayoutProps } from './$types';
+	import { invalidateAll } from '$app/navigation';
 	import { page } from '$app/state';
-	import { Navigation, Toaster } from '@skeletonlabs/skeleton-svelte';
-  	import { toaster } from '$lib/toaster-svelte'; 
+	import { Navigation, Toaster, Modal } from '@skeletonlabs/skeleton-svelte';
 	import {
 		CircleHelp,
 		CirclePlus,
@@ -13,19 +13,35 @@
 		UsersRound
 	} from 'lucide-svelte';
 	import '../app.css';
+	import { toaster } from '$lib/toaster-svelte'; 
 	import { classNameUrlName } from '$lib/utils';
-	import { exportDatabaseToJson } from '$lib/persistence.svelte';
+	import { exportDatabaseToJson, getConflictingClasses, importClasses } from '$lib/persistence.svelte';
 
 	let { children, data }: LayoutProps = $props();
+
+	let openState = $state(false);
+	let importObjectWithConflicts: ImportObject | undefined = $state();
+	let idsToImport: string[] = $state([]);
+
+	let fileInput: HTMLInputElement;
+
+	function openModal() {
+		idsToImport = [];
+		openState = true;
+	}
+
+	function closeModal() {
+		openState = false;
+	}
 
 	function pushSwitch() {
 		document.documentElement.classList.toggle('dark');
 	}
 
+	// TODO: Overvej at tilføje mulighed for kun at tage backup af nogle hold – evt. blot at eksportere et enkelt hold
 	function backupWholeDatabase() {
 		exportDatabaseToJson()
 			.then((json) => {
-				console.log(json);
 				let a = document.createElement("a");
 				a.href = window.URL.createObjectURL(new Blob([json], {type: "text/plain"}));
 				a.download = `dangrupper-export-${(new Date().toLocaleString())}.json`;
@@ -40,9 +56,48 @@
 				});
 			});
 	}
-</script>
 
-<Toaster {toaster}></Toaster>
+	function onImportButtonClick(): void {
+		if (fileInput) fileInput.click();
+	}
+
+	async function showImportDialog() {
+		if (fileInput.files?.length === 1) {
+			try {
+				const file = fileInput.files[0];
+				const text = await file.text();
+				const importObject = JSON.parse(text);
+				importObjectWithConflicts = await getConflictingClasses(importObject);
+				openModal();
+				fileInput.value = '';
+			} catch(err) {
+				console.error('failure in showImportDialog', err);
+				toaster.error({
+					title: "Import af fil fejlede",
+					description: "Den valgte fil kunne ikke importeres. (Det er kun filer, der er eksporteret fra denne app, der kan importeres.)",
+				});
+			}
+		}
+	}
+
+	function importSelectedClasses() {
+		if (!importObjectWithConflicts || idsToImport.length == 0) return;
+
+		const io = $state.snapshot(importObjectWithConflicts) as ImportObject; // TODO: Fix this
+		const ids = $state.snapshot(idsToImport);
+		
+		importClasses(io, ids)
+			.then(() => {
+				invalidateAll();
+			}).catch((err) => {
+				console.error("Import to DB failed", err);
+				toaster.error({
+					title: "Import til databasen fejlede",
+					description: "Denne fejl er ikke forventet. Kontakt udvikleren.",
+				});
+			});
+	}
+</script>
 
 <div class="grid h-screen grid-rows-[auto_1fr]">
 	<!-- Header -->
@@ -59,7 +114,7 @@
 				title="Skift mellem lyst og mørkt udseende"><SunMoon size={28} /></button
 			>
 			<button class="btn hover:preset-tonal" title="Download backup" onclick={backupWholeDatabase}><Download size={28} /></button>
-			<button class="btn hover:preset-tonal" title="Upload tidligere backup">
+			<button class="btn hover:preset-tonal" title="Upload tidligere backup" onclick={onImportButtonClick}>
 				<Upload size={28} />
 			</button>
 		</div>
@@ -88,4 +143,51 @@
 			{@render children()}
 		</main>
 	</div>
+</div>
+
+<Toaster {toaster}></Toaster>
+
+<Modal
+	open={openState}
+	onOpenChange={(e) => (openState = e.open)}
+	triggerBase="btn preset-filled-primary-500"
+	contentBase="card bg-surface-100-900 p-4 space-y-4 shadow-xl max-w-screen-sm"
+	backdropClasses="backdrop-blur-sm"
+>
+	{#snippet content()}
+		<header class="flex justify-between">
+			<h2 class="h4">Import af hold</h2>
+		</header>
+		<article>
+			<span class="opacity-60 space-y-2">
+				{#if Array.isArray(importObjectWithConflicts?.classes)}
+					<p>Vælg de hold, som du vil importere:</p>
+					<form class="space-y-2">
+						{#each importObjectWithConflicts.classes as c}	
+							<label class="flex items-center space-x-2">
+								<input class="checkbox" type="checkbox" value={c.id} bind:group={idsToImport} disabled={c.conflictingClass != null} />
+								<p>{c.name}{#if c.conflictingClass} &nbsp;(kolliderer med {c.conflictingClass.name}) {/if}</p>
+							</label>
+						{/each}
+					</form>
+					{#if importObjectWithConflicts?.classes?.some(c => c.conflictingClass)}
+						<p>
+							Kollision betyder, at et hold er præcist de samme, som et af de hold, der kan importeres (de har samme ID). 
+							Hvis du ønsker at importere et hold, der allerede er oprettet, så slet først den gamle kopi af holdet.
+							Tip: Tag først en backup, hvis du sletter et hold.
+						</p>
+					{/if}
+				{/if}
+			</span>
+		</article>
+		<footer class="flex justify-end gap-4">
+			<button type="button" class="btn preset-tonal" onclick={closeModal}>Annullér</button>
+			<button type="button" class="btn preset-filled" onclick={() => {closeModal(); importSelectedClasses()}}>Importér hold</button>
+		</footer>
+	{/snippet}
+</Modal>
+
+<!-- NOTE: Don't use `hidden` as it prevents `required` from operating -->
+<div class="w-0 h-0 overflow-hidden">
+	<input name="fileinput" type="file" bind:this={fileInput} onchange={showImportDialog} />
 </div>

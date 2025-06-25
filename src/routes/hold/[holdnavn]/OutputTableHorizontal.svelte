@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { toaster } from "../../../lib/toaster-svelte";
+	import { toaster } from "$lib/toaster-svelte";
 
     const { groups }: { groups: Student[][] } = $props();
 
@@ -93,7 +93,6 @@
             rows.push(row.join('\t'));
         }
         const output = rows.join('\n');
-        console.log(output);
         navigator.clipboard.writeText(output)
             .then(()=>console.log('succesfully copied text'))
             .catch(()=>console.log('not allowed to copy text'));

@@ -10,7 +10,7 @@ import type { LayoutLoad } from './$types';
 
 export const load: LayoutLoad = async () => {
 	console.log('Getting classes from DB');
-	const classes = (await getClasses()) || [];
+	const classes = await getClasses();
 	return {
 		classes
 	};

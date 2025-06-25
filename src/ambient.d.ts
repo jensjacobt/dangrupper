@@ -28,3 +28,8 @@ declare type TableGroups = {
     errorText: string;
     saved: boolean;
 };
+
+type ImportObject = {
+	classes: (Class & {conflictingClass: Class?})[];
+	keyval: [key: string, val: any][];
+}
