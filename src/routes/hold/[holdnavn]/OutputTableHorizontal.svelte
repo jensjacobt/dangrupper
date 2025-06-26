@@ -69,17 +69,21 @@
 	});
 
     function copyCanvasToClipboard() {
-        canvas.toBlob(function(blob) { 
-            if (blob) {
-                const item = new ClipboardItem({ "image/png": blob });
-                navigator.clipboard.write([item]); 
-            } else {
+        const getImagePromise = async () => {
+            const url = canvas.toDataURL();
+            const response = await fetch(url);
+            return await response.blob();
+        }
+
+        navigator.clipboard.write([new ClipboardItem({ "image/png": getImagePromise() })])
+            .then(function() { console.log('copied image to clipboard'); })
+            .catch(function(error) { 
+                console.log(error);
                 toaster.error({
                     title: 'Billede ikke kopieret', 
                     description: 'Hvis fejlen fortsætter, så kontakt udvikleren.'
-                });
-            }
-        });
+                }); 
+            });
     }
 
     function copyTextForExcel() {
@@ -103,5 +107,5 @@
 Din browser understøtter ikke canvas i HTML. Prøv en anden browser.
 </canvas>
 
-<button class="btn mr-2 preset-filled-primary-500" onclick={copyCanvasToClipboard}> Kopier billede </button>
+<button id="copy-image-button" class="btn mr-2 preset-filled-primary-500" onclick={copyCanvasToClipboard}> Kopier billede </button>
 <button class="btn preset-outlined-primary-500" onclick={copyTextForExcel}> Kopier til Excel </button>
