@@ -1,9 +1,9 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import ClassForm from '$lib/ClassForm.svelte';
 	import { addClass } from '$lib/persistence.svelte';
 	import { toaster } from '$lib/toaster-svelte';
 	import { classNameUrlName } from '$lib/utils';
-	import ClassForm from '$lib/ClassForm.svelte';
 
 	let id = 0;
 	let className = $state('');
@@ -19,9 +19,10 @@
 				return;
 			})
 			.catch((error) => {
+				console.error(error);
 				toaster.error({
-					title: 'Fejl',
-					description: `Kunne ikke tilføje hold. ${error.message}`,
+					title: 'Kunne ikke tilføje hold',
+					description: error.message,
 				});
 			});
 	}

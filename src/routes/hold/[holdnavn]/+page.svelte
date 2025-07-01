@@ -1,10 +1,10 @@
 <script lang="ts">
-	import type { PageProps } from './$types';
-	import Svelecte from 'svelecte';
-	import { addToHistory, setStored } from '$lib/persistence.svelte';
 	import { createTableGroups } from '$lib/groupGenerator';
-	import OutputTableHorizontal from './OutputTableHorizontal.svelte';
+	import { addToHistory, setTableGroups } from '$lib/persistence.svelte';
 	import { toaster } from '$lib/toaster-svelte';
+	import Svelecte from 'svelecte';
+	import type { PageProps } from './$types';
+	import OutputTableHorizontal from './OutputTableHorizontal.svelte';
 
 	let { data }: PageProps = $props();
 
@@ -12,9 +12,7 @@
 	let displayGroups = $state() as Student[][];
 	let options = $state() as Student[];
 
-	$inspect(tableGroups);
-
-	$effect.pre(() => {
+	$effect.pre(() => { // needed for navigation between classes
 		console.log('Reading in loaded data');
 		tableGroups = data.initialTableGroups;
 		displayGroups = groupsFromIds(data.initialTableGroups.currentGroups);
@@ -29,7 +27,7 @@
 
 	$effect(() => {
 		console.log('Storing table groups in DB');
-		setStored<TableGroups>(data.keyCurrent, $state.snapshot(tableGroups));
+		setTableGroups(data.currentClass.id, $state.snapshot(tableGroups));
 	});
 
 	function clearPredefinedGroups() {
@@ -50,7 +48,7 @@
 			);
 			tableGroups.currentGroups = groups;
 			displayGroups = groupsFromIds(groups);
-			tableGroups.errorText = groups.length ? '' : 'Grupper kunne ikke dannes. Justér evt. indstillingerne.';
+			tableGroups.errorText = groups.length ? '' : 'Grupper kunne ikke dannes. Justér evt. indstillingerne (så der er lavere krav).';
 			if (overMaxPredefined.length == 0) {
 				tableGroups.warningText = '';
 			} else {
@@ -61,23 +59,27 @@
 				const warningStart = 'Grupper med forudbestemte medlemmer, der har for mange gengangere: ';
 				tableGroups.warningText = warningStart + groupStrs.join(', ');
 			}
-		} catch (e) {
-			// TODO: Toast error
+		} catch (error) {
 			displayGroups = [];
+			console.error(error);
+			toaster.error({
+				title: "Ukendt fejl under gruppedannelse",
+				description: "Kontakt udvikleren hvis det fortsætter."
+			})
 		}
 	}
 
     function saveGroups() {
         const snapshotCurrentGroups = $state.snapshot(tableGroups.currentGroups);
         if (JSON.stringify(snapshotCurrentGroups) !== JSON.stringify(data.history.at(-1))) {
-            addToHistory(data.keyHistory, snapshotCurrentGroups).then(() => {
+            addToHistory(data.currentClass.id, snapshotCurrentGroups).then(() => {
                 data.history.push(snapshotCurrentGroups);
                 tableGroups.saved = true;
             });
         } else {
             tableGroups.saved = true;
             toaster.warning({
-                description: 'Grupperne er allerede tilføjet til historikken'
+                description: 'Grupperne er allerede tilføjet til historikken.'
             });
         }
     }
@@ -105,7 +107,7 @@
 Den enkelte elev skal opleve højst
 <input class="input mx-2 inline-block w-16"	type="number" min="0" max="3" bind:value={tableGroups.maxRecurring}/>
 gengangere fra sine
-<input class="input mx-2 inline-block w-16" type="number" min="0" max="20" bind:value={tableGroups.nLastGroups}/>
+<input class="input mx-2 inline-block w-16" type="number" min="0" max="10" bind:value={tableGroups.nLastGroups}/>
 sidste grupper.
 
 <h4 class="h4 mb-0 mt-6">Forudbestemte medlemmer</h4>
@@ -135,7 +137,7 @@ sidste grupper.
 	Ryd forudbestemte medlemmer
 </button>
 
-{#if displayGroups.length || tableGroups.errorText}
+{#if displayGroups.length || tableGroups.errorText.length}
 	<h4 class="h4 mb-0 mt-6">Nye grupper</h4>
 	{#if tableGroups.errorText}
 		<div class="card p-4 preset-filled-error-500">{tableGroups.errorText}</div>
@@ -167,7 +169,3 @@ sidste grupper.
 {/if}
 
 <div style="height: 80vh"></div>
-
-<!-- 
-data.initialTableGroups:
-<pre class="pre">{JSON.stringify(data.initialTableGroups, null, 2)}</pre> -->

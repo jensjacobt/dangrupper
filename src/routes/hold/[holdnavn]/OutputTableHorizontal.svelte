@@ -78,7 +78,7 @@
         navigator.clipboard.write([new ClipboardItem({ "image/png": getImagePromise() })])
             .then(function() { console.log('copied image to clipboard'); })
             .catch(function(error) { 
-                console.log(error);
+                console.error(error);
                 toaster.error({
                     title: 'Billede ikke kopieret', 
                     description: 'Hvis fejlen fortsætter, så kontakt udvikleren.'
@@ -98,8 +98,8 @@
         }
         const output = rows.join('\n');
         navigator.clipboard.writeText(output)
-            .then(()=>console.log('succesfully copied text'))
-            .catch(()=>console.log('not allowed to copy text'));
+            .then(() => console.log('succesfully copied text'))
+            .catch(() => console.log('not allowed to copy text'));
     }
 </script>
 

@@ -1,35 +1,15 @@
 import { getEmptyPredefinedGroups } from '$lib/groupGenerator';
-import { getStored } from '$lib/persistence.svelte';
-import type { PageLoad } from './$types';
+import { getTableGroups, getTableGroupsHistory } from '$lib/persistence.svelte';
 import { error } from '@sveltejs/kit';
+import type { PageLoad } from './$types';
 
-const tableGroupsKey = 'tableGroups';
-const tableGroupsHistoryKey = `${tableGroupsKey}-history`;
-
-function predefinedHasInvalidId(predefinedGroups: maybeIdNumber[][], students: Student[]) {
-	const studentIds = students.map((s) => s.id);
-	return predefinedGroups.flat().some((id) => {
-		id != null && !studentIds.includes(id);
-	});
-}
-
-export const load: PageLoad = async ({ params, parent }) => {
+export const load: PageLoad = async ({ parent }) => {
 	const { currentClass } = await parent();
-	const keyCurrent = `${tableGroupsKey}_${currentClass.id}`;
-	const keyHistory = `${tableGroupsHistoryKey}_${currentClass.id}`;
 	try {
 		console.log('Getting table groups from DB');
-		const initialTableGroups: TableGroups = (await getStored<TableGroups>(keyCurrent)) ?? {
-			maxRecurring: 0,
-			nLastGroups: 3,
-			predefinedGroups: [],
-			currentGroups: [],
-            warningText: '',
-            errorText: '',
-            saved: false
-		};
+		const initialTableGroups: TableGroups = await getTableGroups(currentClass.id);
 
-		const history: idNumber[][][] = (await getStored<idNumber[][][]>(keyHistory)) ?? [];
+		const history: idNumber[][][] = await getTableGroupsHistory(currentClass.id);
 
 		const numStudents = currentClass.students.length;
 		const numPredefined = initialTableGroups.predefinedGroups.reduce((s, e) => s + e.length, 0);
@@ -43,12 +23,17 @@ export const load: PageLoad = async ({ params, parent }) => {
 
 		return {
 			initialTableGroups,
-			history,
-			keyCurrent,
-			keyHistory
+			history
 		};
 	} catch (err) {
 		console.error('Error in preload:', err);
 		error(500, 'Fejl under læsning fra databasen');
 	}
 };
+
+function predefinedHasInvalidId(predefinedGroups: maybeIdNumber[][], students: Student[]) {
+	const studentIds = students.map((s) => s.id);
+	return predefinedGroups.flat().some((id) => 
+		id != null && !studentIds.includes(id)
+	);
+}

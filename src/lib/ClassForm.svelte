@@ -1,6 +1,5 @@
 <script lang="ts">
-	import { validity } from './actions.svelte';
-	import { validateClassName } from './validation.svelte';
+	import { validateClassName, validity } from './validation.svelte';
 
 	type Props = {
 		className: string;

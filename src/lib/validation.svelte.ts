@@ -1,3 +1,5 @@
+import type { ActionReturn } from 'svelte/action';
+
 export function validateClassName(value: string) {
 	if (value == '') return 'Holdnavn skal udfyldes';
 	if (value.trim() == '') return 'Holdnavn skal indeholde mere end mellemrum';
@@ -16,4 +18,19 @@ export function validateStudents(students: Student[]): string {
 		return `Gengangere på listen: ${duplicates.join(', ')}`;
 	}
 	return '';
+}
+
+export function validity(input: HTMLInputElement, validator: (s: string) => string): ActionReturn {
+	function validate() {
+		input.setCustomValidity(validator(input.value) ?? '');
+	}
+
+	input.addEventListener('input', validate);
+	validate();
+
+	return {
+		destroy() {
+			input.removeEventListener('input', validate);
+		}
+	};
 }

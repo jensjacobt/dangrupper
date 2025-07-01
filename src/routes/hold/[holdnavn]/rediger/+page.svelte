@@ -1,10 +1,10 @@
 <script lang="ts">
-	import { toaster } from '$lib/toaster-svelte';
 	import { goto } from '$app/navigation';
-	import { classNameUrlName } from '$lib/utils';
 	import ClassForm from '$lib/ClassForm.svelte';
-	import type { PageProps } from '../$types';
 	import { editClass } from '$lib/persistence.svelte';
+	import { toaster } from '$lib/toaster-svelte';
+	import { classNameUrlName } from '$lib/utils';
+	import type { PageProps } from '../$types';
 
 	let { data }: PageProps = $props();
 
@@ -23,9 +23,10 @@
 				return;
 			})
 			.catch((error) => {
+				console.error(error);
 				toaster.error({
-					title: 'Fejl',
-					description: `Kunne ikke redigere hold. ${error.message}`,
+					title: 'Kunne ikke redigere hold',
+					description: error.message,
 				});
 			});
 	}

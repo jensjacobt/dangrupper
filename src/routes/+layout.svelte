@@ -1,8 +1,10 @@
 <script lang="ts">
-	import type { LayoutProps } from './$types';
 	import { invalidateAll } from '$app/navigation';
 	import { page } from '$app/state';
-	import { Navigation, Toaster, Modal } from '@skeletonlabs/skeleton-svelte';
+	import { downloadJson, exportDatabaseToJson, getConflictingClasses, importClasses } from '$lib/persistence.svelte';
+	import { toaster } from '$lib/toaster-svelte';
+	import { classNameUrlName } from '$lib/utils';
+	import { Modal, Navigation, Toaster } from '@skeletonlabs/skeleton-svelte';
 	import {
 		CircleHelp,
 		CirclePlus,
@@ -13,9 +15,7 @@
 		UsersRound
 	} from 'lucide-svelte';
 	import '../app.css';
-	import { toaster } from '$lib/toaster-svelte'; 
-	import { classNameUrlName } from '$lib/utils';
-	import { downloadJson, exportDatabaseToJson, getConflictingClasses, importClasses } from '$lib/persistence.svelte';
+	import type { LayoutProps } from './$types';
 
 	let { children, data }: LayoutProps = $props();
 
@@ -41,14 +41,13 @@
 	if (data.classes.length > 0 && navigator.storage && navigator.storage.persist) {
 		navigator.storage.persist().then(persistent => {
 			if (persistent) {
-			console.log("Storage will not be cleared except by explicit user action.");
+				console.log("Storage will not be cleared except by explicit user action.");
 			} else {
-			console.log("Storage may be cleared by the browser under storage pressure.");
+				console.log("Storage may be cleared by the browser under storage pressure.");
 			}
 		});
 	}
 
-	// TODO: Overvej at tilføje mulighed for kun at tage backup af nogle hold – evt. blot at eksportere et enkelt hold
 	function exportWholeDatabase() {
 		const filename = `dangrupper-export-${(new Date().toLocaleString())}.json`;
 		const json = exportDatabaseToJson();
@@ -81,7 +80,7 @@
 	function importSelectedClasses() {
 		if (!importObjectWithConflicts || idsToImport.length == 0) return;
 
-		const io = $state.snapshot(importObjectWithConflicts) as ImportObject; // TODO: Fix this
+		const io = $state.snapshot(importObjectWithConflicts) as ImportObject;
 		const ids = $state.snapshot(idsToImport);
 		
 		importClasses(io, ids)
@@ -111,10 +110,8 @@
 				class="btn hover:preset-tonal"
 				title="Skift mellem lyst og mørkt udseende"><SunMoon size={28} /></button
 			>
-			<button class="btn hover:preset-tonal" title="Download backup" onclick={exportWholeDatabase}><Download size={28} /></button>
-			<button class="btn hover:preset-tonal" title="Upload tidligere backup" onclick={onImportButtonClick}>
-				<Upload size={28} />
-			</button>
+			<button class="btn hover:preset-tonal" title="Download fuld backup" onclick={exportWholeDatabase}><Download size={28} /></button>
+			<button class="btn hover:preset-tonal" title="Importér fra tidligere backup" onclick={onImportButtonClick}><Upload size={28} /></button>
 		</div>
 	</header>
 	<!-- Grid Columns -->

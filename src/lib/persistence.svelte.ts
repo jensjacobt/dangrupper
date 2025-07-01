@@ -1,21 +1,35 @@
 import { delMany, entries, get, keys, set, setMany, update } from 'idb-keyval';
-import { validateClassName, validateStudents } from './validation.svelte';
 import { toaster } from './toaster-svelte';
+import { validateClassName, validateStudents } from './validation.svelte';
 
-/* Get from and set in DB */
-export function getStored<T>(key: string): Promise<T | undefined> {
-	return get(key);
+const classesKey = 'classes';
+const tableGroupsKey = 'tableGroups';
+const tableGroupsHistoryKey = `${tableGroupsKey}-history`;
+
+/* Get from and set in DB with claimed type and logging/warnings */
+function getStored<T>(key: string): Promise<T | undefined> {
+	return get(key).catch((error) => {
+		console.error(`IDB Error Getting ${key}:`, error);
+		toaster.error({
+			title: "Læsning fra databasen fejlede",
+			description: `Kontakt udvikleren hvis det fortsætter.`
+		});
+	});;
 }
 
-export function setStored<T>(key: string, value: T): void {
-	set(key, value).catch((error) => console.error('IDB Error Setting:', error));
+function setStored<T>(key: string, value: T, displayName: string): void {
+	set(key, value).catch((error) => {
+		console.error(`IDB Error Setting ${key}:`, error);
+		toaster.error({
+			title: "Skrivning til databasen fejlede",
+			description: `De netop ændrede ${displayName} kunne ikke gemmes til databasen. (Prøv evt. at lave en ændring igen og se om det går bedre i den omgang.)`
+		});
+	});
 }
 
 /* Classes */
-const classesKey = 'classes';
-
-export async function getClasses(): Promise<Class[]> {
-	return (await get(classesKey)) ?? [];
+export async function getClasses() {
+	return (await getStored<Class[]>(classesKey)) ?? [];
 }
 
 function trimAndValidateClass(
@@ -38,7 +52,7 @@ export async function addClass(className: string, students: Student[]): Promise<
 
 	const classes = await get(classesKey);
 	if (Array.isArray(classes) && classes.some((c) => c.name == className)) {
-		throw Error('Holdnavn allerede i brug – skriv et andet');
+		throw Error('Holdnavn allerede i brug – skriv et andet.');
 	}
 
 	await update(classesKey, (classes: Class[] | undefined) => {
@@ -57,16 +71,16 @@ export async function editClass(id: string, className: string, students: Student
 
 	const classes = (await get(classesKey)) as Class[] | undefined;
 	if (Array.isArray(classes) && !classes.some((c) => c.id)) {
-		throw Error('Holdet findes ikke i databasen');
+		throw Error('Holdet findes ikke i databasen.');
 	}
 
 	await update(classesKey, (classes: Class[] | undefined) => {
-		let newClasses = classes ?? [];
+		const newClasses = classes ?? [];
 		const index = newClasses.findIndex((c) => c.id == id);
 		if (index >= 0) {
 			newClasses[index] = { id, name: className, students };
 		} else {
-			console.error('Holdet findes ikke i databasen (men blev fundet for et øjeblik siden)');
+			console.error('Holdet findes ikke i databasen (men blev fundet for et øjeblik siden).');
 		}
 		return newClasses;
 	});
@@ -74,19 +88,41 @@ export async function editClass(id: string, className: string, students: Student
 
 export async function removeClass(klass: Class): Promise<void> {
 	await update(classesKey, (classes: Class[] | undefined) => {
-		return (classes ?? []).filter((c) => c.name != klass.name);
+		return (classes ?? []).filter((c) => c.id != klass.id);
 	});
 	const storedKeys = await keys();
 	const keysToDelete = storedKeys.filter((key) => typeof key == 'string' && key.includes(klass.id));
 	await delMany(keysToDelete);
 }
 
-/* Table Groups History */
-export async function addToHistory(historyKey: string, groups: idNumber[][]) {
+/* Table Groups */
+export async function getTableGroups(classId: string) {
+	const key = `${tableGroupsKey}_${classId}`;
+	return (await getStored<TableGroups>(key)) ?? {
+			maxRecurring: 0,
+			nLastGroups: 3,
+			predefinedGroups: [],
+			currentGroups: [],
+            warningText: '',
+            errorText: '',
+            saved: false
+	}
+}
+
+export function setTableGroups(classId: string, tableGroups: TableGroups) {
+	const key = `${tableGroupsKey}_${classId}`;
+	setStored<TableGroups>(key, tableGroups, "bordgrupper");
+}
+
+export async function getTableGroupsHistory(classId: string) {
+	const key = `${tableGroupsHistoryKey}_${classId}`
+	return (await getStored<idNumber[][][]>(key)) ?? [];
+}
+
+export async function addToHistory(classId: string, groups: idNumber[][]) {
 	console.log('adding to history:', groups);
-	await update(historyKey, (history: idNumber[][][] | undefined) => {
-		return (history ?? []).concat([groups]);
-	});
+	const key = `${tableGroupsHistoryKey}_${classId}`;
+	await update(key, (his => ((his ?? []).concat([groups]))));
 }
 
 /* Export */
@@ -121,7 +157,7 @@ export async function exportClassToJson(classId: string) {
 export function downloadJson(filename: string, json: Promise<string>) {
 	json
 		.then((json) => {
-			let a = document.createElement("a");
+			const a = document.createElement("a");
 			a.href = window.URL.createObjectURL(new Blob([json], {type: "text/plain"}));
 			a.download = filename;
 			a.click();
@@ -138,7 +174,7 @@ export function downloadJson(filename: string, json: Promise<string>) {
 
 /* Import */
 export async function getConflictingClasses(importObject: ImportObject): Promise<ImportObject> {
-	const currentClasses: Class[] = await get(classesKey) ?? [];
+	const currentClasses = await getClasses();
 	for (let i = 0; i < importObject.classes.length; i++) {
 		const klass = importObject.classes[i];
 		for (const currentClass of currentClasses) {

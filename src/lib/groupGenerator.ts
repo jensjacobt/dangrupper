@@ -5,8 +5,8 @@ export function getEmptyPredefinedGroups(numStudents: number): maybeIdNumber[][]
 const random = (function() {
 	if (!crypto) return Math.random
 
-	var max = Math.pow(2, 32)
-	var u32 = new Uint32Array(1)
+	const max = Math.pow(2, 32)
+	const u32 = new Uint32Array(1)
 
 	return function random () {
 		return crypto.getRandomValues(u32)[0] / max
@@ -48,9 +48,9 @@ export function createTableGroups(
 	const assignableStudents = studentIds.filter((s) => !preassigned.has(s));
 	// TODO: Tjek at assignableStudents passer med antal null i tableGroups.predefinedGroups
 
-	for (let j = 0; j < 100; j++) {
+	for (let j = 0; j < 250; j++) {
 		let rest = assignableStudents.slice(0);
-		let predefined = predefinedGroups.slice(0);
+		const predefined = predefinedGroups.slice(0);
 
 		const groups: idNumber[][] = [];
 		for (let i = 0; i < 100; i++) {
@@ -74,9 +74,8 @@ export function createTableGroups(
 }
 
 function groupFromPredefined(predefinedGroup: maybeIdNumber[], students: idNumber[]): idNumber[] {
-	const set = new Set<idNumber>();
 	const group: idNumber[] = [];
-	let oldIndexes: number[] = [];
+	const oldIndexes: number[] = [];
 	let index;
 	for (const p of predefinedGroup) {
 		if (p !== null) {
@@ -120,7 +119,7 @@ function getTableOfPreviousPartners(
 	for (const s of studentIds) {
 		const partners = new Set<idNumber>([]);
 		for (let i = 1; i <= groupsBack; i++) {
-			const groups = history.at(-i) as idNumber[][]; // trust me bro
+			const groups = history.at(-i) as idNumber[][]; // always works - ts just can't figure it out
 			for (const g of groups) {
 				if (g.includes(s)) {
 					for (const gs of g) {
@@ -134,25 +133,25 @@ function getTableOfPreviousPartners(
 	return tableOfPartners;
 }
 
-function getRandomGroups(students: Student[]): idNumber[][] {
-	const shuffled = students.map((s) => s.id);
-	shuffleArray(shuffled);
-	const sizes = getGroupSizes(students.length);
-	const groups = [];
-	let i = 0;
-	for (const size of sizes) {
-		groups.push(shuffled.slice(i, i + size));
-		i += size;
-	}
-	return groups;
-}
+// function getRandomGroups(students: Student[]): idNumber[][] {
+// 	const shuffled = students.map((s) => s.id);
+// 	shuffleArray(shuffled);
+// 	const sizes = getGroupSizes(students.length);
+// 	const groups = [];
+// 	let i = 0;
+// 	for (const size of sizes) {
+// 		groups.push(shuffled.slice(i, i + size));
+// 		i += size;
+// 	}
+// 	return groups;
+// }
 
-function shuffleArray(array: any[]) {
-	for (let i = array.length - 1; i >= 0; i--) {
-		const j = Math.floor(random() * (i + 1));
-		[array[i], array[j]] = [array[j], array[i]];
-	}
-}
+// function shuffleArray(array: any[]) {
+// 	for (let i = array.length - 1; i >= 0; i--) {
+// 		const j = Math.floor(random() * (i + 1));
+// 		[array[i], array[j]] = [array[j], array[i]];
+// 	}
+// }
 
 /**
  * n: number of students in class

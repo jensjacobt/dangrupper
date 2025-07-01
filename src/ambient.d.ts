@@ -31,10 +31,10 @@ declare type TableGroups = {
 
 type ExportObject = {
 	classes: Class[];
-	keyval: [key: IDBValidKey, val: any][];
+	keyval: [key: IDBValidKey, val: any][]; // eslint-disable-line @typescript-eslint/no-explicit-any
 }
 
 type ImportObject = {
 	classes: (Class & {conflictingClass: Class?})[];
-	keyval: [key: string, val: any][];
+	keyval: [key: string, val: any][]; // eslint-disable-line @typescript-eslint/no-explicit-any
 }

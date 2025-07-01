@@ -1,10 +1,10 @@
 <script lang="ts">
-	import type { LayoutProps } from './$types';
-	import { downloadJson, exportClassToJson, removeClass } from '$lib/persistence.svelte';
 	import { goto } from '$app/navigation';
+	import { downloadJson, exportClassToJson, removeClass } from '$lib/persistence.svelte';
 	import { toaster } from '$lib/toaster-svelte';
-	import { Modal } from '@skeletonlabs/skeleton-svelte';
 	import { classNameUrlName } from '$lib/utils';
+	import { Modal } from '@skeletonlabs/skeleton-svelte';
+	import type { LayoutProps } from './$types';
 
 	let { children, data }: LayoutProps = $props();
 
@@ -38,8 +38,8 @@
 			.catch((error) => {
 				console.error(error);
 				toaster.error({
-					title: 'Fejl',
-					description: `Kunne ikke slette hold. (Fejlbesked: ${error.message})`,
+					title: 'Kunne ikke slette hold',
+					description: `(Fejlbesked: ${error.message})`,
 				});
 			});
 	}
