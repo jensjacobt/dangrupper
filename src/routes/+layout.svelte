@@ -15,7 +15,7 @@
 	import '../app.css';
 	import { toaster } from '$lib/toaster-svelte'; 
 	import { classNameUrlName } from '$lib/utils';
-	import { exportDatabaseToJson, getConflictingClasses, importClasses } from '$lib/persistence.svelte';
+	import { downloadJson, exportDatabaseToJson, getConflictingClasses, importClasses } from '$lib/persistence.svelte';
 
 	let { children, data }: LayoutProps = $props();
 
@@ -38,23 +38,21 @@
 		document.documentElement.classList.toggle('dark');
 	}
 
+	if (data.classes.length > 0 && navigator.storage && navigator.storage.persist) {
+		navigator.storage.persist().then(persistent => {
+			if (persistent) {
+			console.log("Storage will not be cleared except by explicit user action.");
+			} else {
+			console.log("Storage may be cleared by the browser under storage pressure.");
+			}
+		});
+	}
+
 	// TODO: Overvej at tilføje mulighed for kun at tage backup af nogle hold – evt. blot at eksportere et enkelt hold
-	function backupWholeDatabase() {
-		exportDatabaseToJson()
-			.then((json) => {
-				let a = document.createElement("a");
-				a.href = window.URL.createObjectURL(new Blob([json], {type: "text/plain"}));
-				a.download = `dangrupper-export-${(new Date().toLocaleString())}.json`;
-				a.click();
-				a.remove();
-			}, 
-			(e) => { 
-				console.error('export to json failed:', e);
-				toaster.error({
-					title: "Eksport fejlede",
-					description: e.message
-				});
-			});
+	function exportWholeDatabase() {
+		const filename = `dangrupper-export-${(new Date().toLocaleString())}.json`;
+		const json = exportDatabaseToJson();
+		downloadJson(filename, json);
 	}
 
 	function onImportButtonClick(): void {
@@ -113,7 +111,7 @@
 				class="btn hover:preset-tonal"
 				title="Skift mellem lyst og mørkt udseende"><SunMoon size={28} /></button
 			>
-			<button class="btn hover:preset-tonal" title="Download backup" onclick={backupWholeDatabase}><Download size={28} /></button>
+			<button class="btn hover:preset-tonal" title="Download backup" onclick={exportWholeDatabase}><Download size={28} /></button>
 			<button class="btn hover:preset-tonal" title="Upload tidligere backup" onclick={onImportButtonClick}>
 				<Upload size={28} />
 			</button>

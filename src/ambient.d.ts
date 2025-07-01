@@ -29,6 +29,11 @@ declare type TableGroups = {
     saved: boolean;
 };
 
+type ExportObject = {
+	classes: Class[];
+	keyval: [key: IDBValidKey, val: any][];
+}
+
 type ImportObject = {
 	classes: (Class & {conflictingClass: Class?})[];
 	keyval: [key: string, val: any][];

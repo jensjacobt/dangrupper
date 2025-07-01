@@ -1,5 +1,6 @@
 import { delMany, entries, get, keys, set, setMany, update } from 'idb-keyval';
 import { validateClassName, validateStudents } from './validation.svelte';
+import { toaster } from './toaster-svelte';
 
 /* Get from and set in DB */
 export function getStored<T>(key: string): Promise<T | undefined> {
@@ -98,12 +99,41 @@ export async function exportDatabaseToJson() {
 			break;
 		}
 	}
-	if (classesIndex > -1) {
-		const obj = {'classes': a[classesIndex][1], keyval: a.toSpliced(classesIndex, 1)};
-		return JSON.stringify(obj);
-	} else {
-		throw Error('Ingen klasser er oprettet');
+	if (classesIndex === -1) {
+		throw Error('Ingen hold er oprettet');
+	}	
+	const obj = {'classes': a[classesIndex][1], 'keyval': a.toSpliced(classesIndex, 1)};
+	return JSON.stringify(obj);
+}
+
+export async function exportClassToJson(classId: string) {
+	const classes = await getClasses();
+	const klass = classes.find(c => c.id === classId);
+	if (!klass) {
+		throw Error('Holdet findes ikke');
 	}
+	const s = "_" + klass.id;
+	const classData = (await entries()).filter(e => (e[0] as string).includes(s));
+	const obj: ExportObject = {'classes': [klass], 'keyval': classData};
+	return JSON.stringify(obj);
+}
+
+export function downloadJson(filename: string, json: Promise<string>) {
+	json
+		.then((json) => {
+			let a = document.createElement("a");
+			a.href = window.URL.createObjectURL(new Blob([json], {type: "text/plain"}));
+			a.download = filename;
+			a.click();
+			a.remove();
+		}, 
+		(e) => { 
+			console.error('export to json failed:', e);
+			toaster.error({
+				title: "Eksport fejlede",
+				description: e.message
+			});
+		});
 }
 
 /* Import */
