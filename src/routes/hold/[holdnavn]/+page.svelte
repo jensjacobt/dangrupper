@@ -12,6 +12,8 @@
 	let displayGroups = $state() as Student[][];
 	let options = $state() as Student[];
 
+	$inspect(tableGroups);
+
 	$effect.pre(() => {
 		console.log('Reading in loaded data');
 		tableGroups = data.initialTableGroups;
@@ -133,7 +135,7 @@ sidste grupper.
 	Ryd forudbestemte medlemmer
 </button>
 
-{#if displayGroups.length}
+{#if displayGroups.length || tableGroups.errorText}
 	<h4 class="h4 mb-0 mt-6">Nye grupper</h4>
 	{#if tableGroups.errorText}
 		<div class="card p-4 preset-filled-error-500">{tableGroups.errorText}</div>

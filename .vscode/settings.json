@@ -1,5 +1,0 @@
-{
-    "autoHide.autoHideSideBar": false,
-    "editor.formatOnSave": false,
-    "files.associations": { "*.css": "postcss" }
-}
