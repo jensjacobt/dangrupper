@@ -21,7 +21,7 @@ export const load: PageLoad = async ({ params, parent }) => {
 		console.log('Getting table groups from DB');
 		const initialTableGroups: TableGroups = (await getStored<TableGroups>(keyCurrent)) ?? {
 			maxRecurring: 0,
-			nLastGroups: 4,
+			nLastGroups: 3,
 			predefinedGroups: [],
 			currentGroups: [],
             warningText: '',
