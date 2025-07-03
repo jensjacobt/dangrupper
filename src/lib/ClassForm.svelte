@@ -30,15 +30,58 @@
 			students = newStudents.filter((s) => s.name != '');
 		}
 	}
+
+	function onkeyup(e: KeyboardEvent) {
+		if (e.key == 'Enter' || e.key == 'ArrowDown') {
+			e.preventDefault();
+			focusNextElement();
+		}
+		if (e.key == 'ArrowUp') {
+			e.preventDefault();
+			focusPreviousElement();
+		}
+	}
+
+	function focusNextElement() {
+		focusRelativeElement(1);
+	}
+
+	function focusPreviousElement() {
+		focusRelativeElement(-1);
+	}
+
+	function focusRelativeElement(offset: number) {
+		const focussableElements = 'input[type=text]:not([disabled])';
+		// @ts-expect-error
+		if (document.activeElement && document.activeElement.tagName == 'INPUT' && document.activeElement.form) { 
+			const focussable = Array.prototype.filter.call(
+				// @ts-expect-error
+				document.activeElement.form.querySelectorAll(focussableElements),
+				function (element) {
+					return ( //check for visibility while always include the current activeElement
+						element.offsetWidth > 0 ||
+						element.offsetHeight > 0 ||
+						element === document.activeElement
+					);
+				}
+			);
+			const index = focussable.indexOf(document.activeElement);
+			if (index > -1) {
+				focussable[index + offset]?.focus();
+			}
+		}
+	}
 </script>
 
 <form id="form" class="space-y-4" {onsubmit}>
 	<h4 class="h4">Holdnavn</h4>
 	<input
 		class="input"
+		type="text"
 		placeholder="Holdnavn"
 		bind:value={className}
 		use:validity={validateClassName}
+		onkeyup={onkeyup}
 		autocomplete="off"
 		spellcheck="false"
 	/>
@@ -55,6 +98,7 @@
 				placeholder="Navn"
 				bind:value={student.name}
 				onpaste={onpaste}
+				onkeyup={onkeyup}
 				autocomplete="off"
 				spellcheck="false"
 			/>
