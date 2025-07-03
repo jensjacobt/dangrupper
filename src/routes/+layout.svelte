@@ -128,7 +128,7 @@
 						<UsersRound size={32} />
 					</Navigation.Tile>
 				{/each}
-				<Navigation.Tile selected={page.url.pathname == '/tilføj/'} href="/tilføj/" label="Tilføj hold">
+				<Navigation.Tile selected={page.url.pathname.startsWith('/tilf')} href="/tilføj/" label="Tilføj hold">
 					<CirclePlus size={32} />
 				</Navigation.Tile>
 			{/snippet}
