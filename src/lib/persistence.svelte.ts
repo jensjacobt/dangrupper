@@ -3,6 +3,7 @@ import { toaster } from './toaster-svelte';
 import { validateClassName, validateStudents } from './validation.svelte';
 
 const classesKey = 'classes';
+const classBeingAddedKey = 'class-being-added';
 const tableGroupsKey = 'tableGroups';
 const tableGroupsHistoryKey = `${tableGroupsKey}-history`;
 
@@ -93,6 +94,18 @@ export async function removeClass(klass: Class): Promise<void> {
 	const storedKeys = await keys();
 	const keysToDelete = storedKeys.filter((key) => typeof key == 'string' && key.includes(klass.id));
 	await delMany(keysToDelete);
+}
+
+export async function getClassBeingAdded() {
+	return (await getStored<ClassBeingAdded>(classBeingAddedKey)) ?? {
+		name: "",
+		students: []
+	}
+}
+
+export async function setClassBeingAdded(className: string, students: Student[]) {
+	const classBeingAdded = { name: className, students: students };
+	setStored<ClassBeingAdded>(classBeingAddedKey, classBeingAdded, "data om klassen, der skal oprettes,");
 }
 
 /* Table Groups */

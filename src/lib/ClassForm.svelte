@@ -1,4 +1,5 @@
 <script lang="ts">
+	import type { Snippet } from 'svelte';
 	import { validateClassName, validity } from './validation.svelte';
 
 	type Props = {
@@ -6,9 +7,16 @@
 		students: Student[];
 		id: idNumber;
 		onsubmit: (e: Event) => void;
+		children?: Snippet<[]>;
 	};
 
-	let { className = $bindable(), students = $bindable(), id, onsubmit }: Props = $props();
+	let { 
+		className = $bindable(), 
+		students = $bindable(), 
+		id = $bindable(), 
+		onsubmit, 
+		children 
+	}: Props = $props();
 
 	$effect.pre(() => {
 		const finalName = students[students.length - 1]?.name;
@@ -87,8 +95,10 @@
 	/>
 
 	<h4 class="h4">Elever</h4>
-	Tomme felter ignoreres og rækkefølgen er ligegyldig. Tilføj hurtigt flere elevnavne ved at indsætte
-	kopieret tekst med et navn pr. linje. Indsæt med ctrl+v eller command+v.
+	<p>
+		Tomme felter ignoreres og rækkefølgen er ligegyldig. Tilføj hurtigt flere elevnavne ved at indsætte
+		kopieret tekst med et navn pr. linje. Indsæt med command+v (på mac) eller ctrl+v (på pc).
+	</p>
 	{#each students as student, i (student.id)}
 		<div class="flex items-center gap-2">
 			<span class="badge-icon">{(i+1) + '.'}</span>
@@ -107,4 +117,5 @@
 	<!-- Disable enter to submit -->
 	<button type="submit" disabled style="display: none" aria-hidden="true"></button>
 	<button type="submit" class="btn preset-filled-primary-500">Gem hold</button>
+	{@render children?.()}
 </form>

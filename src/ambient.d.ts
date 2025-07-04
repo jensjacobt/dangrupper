@@ -19,6 +19,11 @@ declare type Class = {
 	students: Student[];
 };
 
+declare type ClassBeingAdded = {
+	name: string,
+	students: Student[]
+}
+
 declare type TableGroups = {
 	maxRecurring: number;
 	nLastGroups: number;

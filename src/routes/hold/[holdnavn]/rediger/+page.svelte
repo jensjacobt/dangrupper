@@ -3,12 +3,12 @@
 	import ClassForm from '$lib/ClassForm.svelte';
 	import { editClass } from '$lib/persistence.svelte';
 	import { toaster } from '$lib/toaster-svelte';
-	import { classNameUrlName } from '$lib/utils';
+	import { classNameUrlName, getNextStudentId } from '$lib/utils';
 	import type { PageProps } from '../$types';
 
 	let { data }: PageProps = $props();
 
-	let id = 1 + data.currentClass.students.reduce((prevMax, s) => Math.max(prevMax, s.id), 0);
+	let id = getNextStudentId(data.currentClass.students);
 	let className = $state(data.currentClass.name);
 	let students: Student[] = $state(data.currentClass.students);
 
