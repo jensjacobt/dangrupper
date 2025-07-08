@@ -205,6 +205,11 @@ export async function importClasses(importObject: ImportObject, idsToImport: str
 	const otherKeyvals = importObject.keyval.filter(kv => idsToImport.some(id => kv[0].includes(id)));
 
 	const currentClasses = await getClasses();
+	for (let i = 0; i < classesToImport.length; i++) {
+		while (currentClasses.some(c => c.name == classesToImport[i].name)) {
+			classesToImport[i].name += "*"
+		}
+	}
 	const newClasses = currentClasses.concat(classesToImport);
 	
 	const keyvals = otherKeyvals.concat([[classesKey, newClasses]]);
