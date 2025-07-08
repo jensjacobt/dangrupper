@@ -9,7 +9,7 @@ export const load: PageLoad = async ({ parent }) => {
 		console.log('Getting table groups from DB');
 		const initialTableGroups: TableGroups = await getTableGroups(currentClass.id);
 
-		const history: idNumber[][][] = await getTableGroupsHistory(currentClass.id);
+		const history: HistoryEntry[] = await getTableGroupsHistory(currentClass.id);
 
 		const numStudents = currentClass.students.length;
 		const numPredefined = initialTableGroups.predefinedGroups.reduce((s, e) => s + e.length, 0);

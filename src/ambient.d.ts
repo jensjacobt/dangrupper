@@ -34,6 +34,11 @@ declare type TableGroups = {
     saved: boolean;
 };
 
+declare type HistoryEntry = {
+	createdAt: string;
+	groups: idNumber[][];
+}
+
 type ExportObject = {
 	classes: Class[];
 	keyval: [key: IDBValidKey, val: any][]; // eslint-disable-line @typescript-eslint/no-explicit-any

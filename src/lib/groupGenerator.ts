@@ -17,7 +17,7 @@ type TableOfPartners = Map<idNumber, Set<idNumber>>;
 
 export function createTableGroups(
 	students: Student[],
-	history: idNumber[][][],
+	history: HistoryEntry[],
 	tableGroups: TableGroups
 ): [groups: idNumber[][], overMaxPredefined: maybeIdNumber[][]] {
 	const studentIds = students.map((s) => s.id);
@@ -111,7 +111,7 @@ function tooManyReps(
 // OBS: Man er selv en tidligere gruppemakker
 function getTableOfPreviousPartners(
 	studentIds: idNumber[],
-	history: idNumber[][][],
+	history: HistoryEntry[],
 	maxBack: number
 ): TableOfPartners {
 	const groupsBack = Math.min(maxBack, history.length);
@@ -119,7 +119,7 @@ function getTableOfPreviousPartners(
 	for (const s of studentIds) {
 		const partners = new Set<idNumber>([]);
 		for (let i = 1; i <= groupsBack; i++) {
-			const groups = history.at(-i) as idNumber[][]; // always works - ts just can't figure it out
+			const groups = history[history.length-i].groups;
 			for (const g of groups) {
 				if (g.includes(s)) {
 					for (const gs of g) {

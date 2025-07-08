@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { createTableGroups } from '$lib/groupGenerator';
-	import { addToHistory, setTableGroups } from '$lib/persistence.svelte';
+	import { addToTableGroupsHistory, setTableGroups } from '$lib/persistence.svelte';
 	import { toaster } from '$lib/toaster-svelte';
 	import Svelecte from 'svelecte';
 	import type { PageProps } from './$types';
@@ -70,10 +70,13 @@
 	}
 
     function saveGroups() {
-        const snapshotCurrentGroups = $state.snapshot(tableGroups.currentGroups);
-        if (JSON.stringify(snapshotCurrentGroups) !== JSON.stringify(data.history.at(-1))) {
-            addToHistory(data.currentClass.id, snapshotCurrentGroups).then(() => {
-                data.history.push(snapshotCurrentGroups);
+		const newHistoryEntry = {
+			createdAt: (new Date()).toISOString(),
+			groups: $state.snapshot(tableGroups.currentGroups)
+		}
+        if (JSON.stringify(newHistoryEntry.groups) !== JSON.stringify(data.history.at(-1)?.groups)) {
+            addToTableGroupsHistory(data.currentClass.id, newHistoryEntry).then(() => {
+                data.history.push(newHistoryEntry);
                 tableGroups.saved = true;
             });
         } else {

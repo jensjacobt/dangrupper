@@ -129,13 +129,13 @@ export function setTableGroups(classId: string, tableGroups: TableGroups) {
 
 export async function getTableGroupsHistory(classId: string) {
 	const key = `${tableGroupsHistoryKey}_${classId}`
-	return (await getStored<idNumber[][][]>(key)) ?? [];
+	return (await getStored<HistoryEntry[]>(key)) ?? [];
 }
 
-export async function addToHistory(classId: string, groups: idNumber[][]) {
-	console.log('adding to history:', groups);
+export async function addToTableGroupsHistory(classId: string, historyEntry: HistoryEntry) {
+	console.log('adding to history:', historyEntry);
 	const key = `${tableGroupsHistoryKey}_${classId}`;
-	await update(key, (his => ((his ?? []).concat([groups]))));
+	await update(key, (his => ((his ?? []).concat([historyEntry]))));
 }
 
 /* Export */
