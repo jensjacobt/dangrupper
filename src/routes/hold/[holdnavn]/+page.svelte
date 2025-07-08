@@ -1,7 +1,9 @@
 <script lang="ts">
+	import DisplayGroups from '$lib/DisplayGroups.svelte';
 	import { createTableGroups } from '$lib/groupGenerator';
 	import { addToTableGroupsHistory, setTableGroups } from '$lib/persistence.svelte';
 	import { toaster } from '$lib/toaster-svelte';
+	import { groupsFromIds } from '$lib/utils';
 	import Svelecte from 'svelecte';
 	import type { PageProps } from './$types';
 	import OutputTableHorizontal from './OutputTableHorizontal.svelte';
@@ -15,7 +17,7 @@
 	$effect.pre(() => { // needed for navigation between classes
 		console.log('Reading in loaded data');
 		tableGroups = data.initialTableGroups;
-		displayGroups = groupsFromIds(data.initialTableGroups.currentGroups);
+		displayGroups = groupsFromIds(data.initialTableGroups.currentGroups, data.currentClass);
 		options = data.currentClass.students;
 	});
 
@@ -47,13 +49,13 @@
 				$state.snapshot(tableGroups)
 			);
 			tableGroups.currentGroups = groups;
-			displayGroups = groupsFromIds(groups);
+			displayGroups = groupsFromIds(groups, data.currentClass);
 			tableGroups.errorText = groups.length ? '' : 'Grupper kunne ikke dannes. Justér evt. indstillingerne (så der er lavere krav).';
 			if (overMaxPredefined.length == 0) {
 				tableGroups.warningText = '';
 			} else {
 				let groupStrs = [];
-				for (const g of groupsFromIds(overMaxPredefined)) {
+				for (const g of groupsFromIds(overMaxPredefined, data.currentClass)) {
 					groupStrs.push(`[${g.map((s) => s.name).join(', ')}]`);
 				}
 				const warningStart = 'Grupper med forudbestemte medlemmer, der har for mange gengangere: ';
@@ -86,32 +88,27 @@
             });
         }
     }
-
-	function groupsFromIds(ids: maybeIdNumber[][]): Student[][] {
-		let groups = [];
-		for (const groupIds of ids) {
-			let group: Student[] = [];
-			for (const id of groupIds) {
-				const student = data.currentClass.students.find((s) => s.id == id);
-				if (student) {
-					group.push(student);
-				}
-			}
-			groups.push(group);
-		}
-		return groups;
-	}
 </script>
 
 <!------------------------------------------------------------------------------------------------>
 
-<h4 class="h3 mt-6">Bordgrupper</h4>
+<svelte:head>
+	<title>Bordgrupper • {data.currentClass.name} • Dan grupper</title>
+</svelte:head>
+
+<h3 class="h3 mt-6">Bordgrupper</h3>
+<p>
+	Her kan du oprette bordgrupper (på højst 4 personer). Du kan indstille, at der ikke skal være for mange 
+	gengangere fra <a class="underline" href="bordgrupper/historik/">historikken</a> af tidligere grupper.
+</p>
 <h4 class="h4">Indstillinger</h4>
-Den enkelte elev skal opleve højst
-<input class="input mx-2 inline-block w-16"	type="number" min="0" max="3" bind:value={tableGroups.maxRecurring}/>
-gengangere fra sine
-<input class="input mx-2 inline-block w-16" type="number" min="0" max="10" bind:value={tableGroups.nLastGroups}/>
-sidste grupper.
+<p>
+	Den enkelte elev skal opleve højst
+	<input class="input mx-2 inline-block w-16"	type="number" min="0" max="3" bind:value={tableGroups.maxRecurring}/>
+	gengangere fra sine
+	<input class="input mx-2 inline-block w-16" type="number" min="0" max="10" bind:value={tableGroups.nLastGroups}/>
+	sidste grupper.
+</p>
 
 <h4 class="h4 mb-0 mt-6">Forudbestemte medlemmer</h4>
 <div class="flex flex-wrap gap-4">
@@ -148,18 +145,7 @@ sidste grupper.
 	{#if tableGroups.warningText}
 		<div class="card p-4 preset-filled-warning-500">{tableGroups.warningText}</div>
 	{/if}
-	<div class="flex flex-wrap gap-4">
-		{#each displayGroups as _, i}
-			<div class="card w-40">
-				<header class="card-header pt-4 pb-2"><h6 class="h6">Gruppe {i + 1}</h6></header>
-				<section class="flex flex-col gap-3">
-					{#each displayGroups[i] as _, j}
-						<div class="overflow-hidden whitespace-nowrap" style="overflow: hidden; white-space: nowrap">{displayGroups[i][j].name}</div>
-					{/each}
-				</section>
-			</div>
-		{/each}
-	</div>
+	<DisplayGroups groups={displayGroups} />
 {/if}
 
 {#if !tableGroups.saved && displayGroups.length}
