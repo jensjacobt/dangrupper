@@ -94,6 +94,11 @@
 				});
 			});
 	}
+
+	function getMenuName(className: string) {
+		if (className.length <= 7) return className;
+		return `${className.substring(0,5)}...`
+	}
 </script>
 
 <div class="grid h-screen grid-rows-[auto_1fr]">
@@ -124,7 +129,7 @@
 				</Navigation.Tile>
 				{#each data.classes.map((c) => c.name).toSorted() as className}
 					{@const url = `/hold/${classNameUrlName(className)}/`}
-					<Navigation.Tile selected={page.url.pathname.startsWith(url)} label={className} href={url}>
+					<Navigation.Tile selected={page.url.pathname.startsWith(url)} label={getMenuName(className)} href={url}>
 						<UsersRound size={32} />
 					</Navigation.Tile>
 				{/each}
