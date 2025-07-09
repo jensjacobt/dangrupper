@@ -65,7 +65,7 @@
 			{#snippet trigger()}Slet hold{/snippet}
 			{#snippet content()}
 				<header class="flex justify-between">
-					<h2 class="h4">Vil du slette holdet "{data.currentClass.name}"?</h2>
+					<h4 class="h4">Vil du slette holdet "{data.currentClass.name}"?</h4>
 				</header>
 				<article>
 					<p class="opacity-60">

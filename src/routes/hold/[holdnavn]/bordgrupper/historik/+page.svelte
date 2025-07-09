@@ -1,9 +1,34 @@
 <script lang="ts">
 	import DisplayGroups from "$lib/DisplayGroups.svelte";
+	import { removeFromTableGroupsHistory } from "$lib/persistence.svelte";
+	import { toaster } from "$lib/toaster-svelte";
 	import { groupsFromIds } from "$lib/utils";
+	import { Modal } from "@skeletonlabs/skeleton-svelte";
+	import { Trash } from "lucide-svelte";
+	import { fade } from "svelte/transition";
 	import type { PageProps } from "./$types";
 
 	let { data }: PageProps = $props();
+
+	let history = $state(data.history);
+	let openState = $state(false);
+	let entryToDelete = $state<HistoryEntry | null>(null);
+
+	function deleteEntry(historyEntry: HistoryEntry | null) {
+		modalClose();
+		if (!historyEntry) return console.error("Unexpected error attempting to delete entry");
+
+		removeFromTableGroupsHistory(data.currentClass.id, historyEntry)
+			.then((his) => {
+				history = his;
+			})
+			.catch(() => {
+				toaster.error({
+					title: "Kunne ikke slette fra historikken",
+					description: "Kontakt udvikleren hvis det fortsætter."
+				})
+			});
+	}
 
 	const days = {
 		0: "søndag",
@@ -31,22 +56,63 @@
 			return isodate;
 		}
 	}
+
+	function modalClose() {
+		openState = false;
+		entryToDelete = null;
+	}
+
+	function modalOpen(h: HistoryEntry) {
+		entryToDelete = h;
+		openState = true;
+	}
 </script>
 
 <!------------------------------------------------------------------------------------------------>
 
 <svelte:head>
-	<title>Historik for bordgrupper • {data.currentClass.name} • Dan grupper</title>
+	<title>Historik • Bordgrupper • {data.currentClass.name} • Dan grupper</title>
 </svelte:head>
 
 <h3 class="h3 mt-6">Historik for bordgrupper</h3>
-{#if data.history.length === 0}
+{#if history.length === 0}
 	<p>Der er ingen grupper i historikken endnu.</p>
 {:else}
-	{#each data.history as h}
-		<h4 class="h4 pt-6">Grupper oprettet {getDate(h.createdAt)}</h4>
-		<DisplayGroups groups={groupsFromIds(h.groups, data.currentClass)} />
+	{#each history as h (h.createdAt)}
+		{@const dateString = getDate(h.createdAt)}
+		<div out:fade={{ duration: 500 }}>
+			<div class="flex gap-2 pt-6 items-center">
+				<h4 class="h4">Grupper oprettet {dateString}</h4>
+				<button class="button" onclick={() => modalOpen(h)}><Trash size={22}/></button>
+			</div>
+			<DisplayGroups groups={groupsFromIds(h.groups, data.currentClass)} />
+		</div>
 	{/each}
 {/if}
 
 <div style="height: 15vh"></div>
+
+<Modal
+	open={openState}
+	onOpenChange={(e) => (openState = e.open)}
+	contentBase="card bg-surface-100-900 p-4 space-y-4 shadow-xl max-w-screen-sm"
+	backdropClasses="backdrop-blur-sm"
+>
+	{#snippet content()}
+		<header class="flex justify-between">
+			<h4 class="h4">
+				Vil du slette grupperne oprettet 
+				{entryToDelete ? getDate(entryToDelete.createdAt) : ""} fra historikken?
+			</h4>
+		</header>
+		<article>
+			<p class="opacity-60">
+				Tip: Tag evt. en backup, inden du sletter fra historikken 😊
+			</p>
+		</article>
+		<footer class="flex justify-end gap-4">
+			<button type="button" class="btn preset-tonal" onclick={modalClose}>Annullér</button>
+			<button type="button" class="btn preset-filled" onclick={() => deleteEntry(entryToDelete)}>Slet hold</button>
+		</footer>
+	{/snippet}
+</Modal>

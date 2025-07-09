@@ -138,6 +138,16 @@ export async function addToTableGroupsHistory(classId: string, historyEntry: His
 	await update(key, (his => ((his ?? []).concat([historyEntry]))));
 }
 
+export async function removeFromTableGroupsHistory(classId: string, historyEntry: HistoryEntry) {
+	console.log('removing from history:', historyEntry);
+	const key = `${tableGroupsHistoryKey}_${classId}`;
+	await update(key, (his => {
+		const old = (his ?? [] ) as HistoryEntry[];
+		return old.filter(h => h.createdAt !== historyEntry.createdAt);
+	}));
+	return await getTableGroupsHistory(classId);
+}
+
 /* Export */
 export async function exportDatabaseToJson() {
 	const a = await entries();
