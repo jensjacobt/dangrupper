@@ -7,7 +7,7 @@ export function classNameUrlName(urlName: string): string {
 }
 
 export function getNextStudentId(students: Student[]) {
-	let id = -1;
+	let id = 0;
 	for (const s of students) {
 		if (s.id > id) {
 			id = s.id

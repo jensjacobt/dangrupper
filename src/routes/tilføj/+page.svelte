@@ -21,7 +21,7 @@
 	function resetClassBeingAdded() {
 		className = "";
 		students = [];
-		id = 0;
+		id = 1;
 	}
 
 	function addClassAndGoToClass(e: Event) {

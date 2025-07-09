@@ -1,6 +1,6 @@
 declare type Grade = -3 | 0 | 2 | 4 | 7 | 10 | 12;
 
-declare type idNumber = number;
+declare type idNumber = number; // must be a positive integer
 
 declare type maybeIdNumber = idNumber | null;
 
