@@ -24,6 +24,8 @@ declare type ClassBeingAdded = {
 	students: Student[]
 }
 
+declare type ActiveGroupType = 'bordgrupper' | 'tilfældige-grupper'
+
 declare type TableGroups = {
 	maxRecurring: number;
 	nLastGroups: number;

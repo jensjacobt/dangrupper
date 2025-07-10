@@ -3,12 +3,13 @@
 	import { page } from '$app/state';
 	import { downloadJson, exportDatabaseToJson, getConflictingClasses, importClasses } from '$lib/persistence.svelte';
 	import { toaster } from '$lib/toaster-svelte';
-	import { classNameUrlName } from '$lib/utils';
+	import { classNameToUrlName } from '$lib/utils';
 	import { Modal, Navigation, Toaster } from '@skeletonlabs/skeleton-svelte';
 	import {
 		CircleHelp,
 		CirclePlus,
 		Download,
+		Menu,
 		School,
 		SunMoon,
 		Upload,
@@ -20,6 +21,7 @@
 	let { children, data }: LayoutProps = $props();
 
 	let openState = $state(false);
+	let expanded = $state(true);
 	let importObjectWithConflicts: ImportObject | undefined = $state();
 	let idsToImport: string[] = $state([]);
 
@@ -32,6 +34,10 @@
 
 	function closeModal() {
 		openState = false;
+	}
+
+	function toggleExpanded() {
+		expanded = !expanded;
 	}
 
 	function pushSwitch() {
@@ -99,12 +105,14 @@
 		if (className.length <= 7) return className;
 		return `${className.substring(0,5)}...`
 	}
+
+	const common = {active: "preset-filled", hover: "hover:bg-white"}
 </script>
 
 <div class="grid h-screen grid-rows-[auto_1fr]">
 	<!-- Header -->
 	<header
-		class="grid w-full grid-cols-[auto_1fr_auto] grid-rows-1 items-center border-b-[1px] border-surface-500/20 p-4 p-4 py-3 bg-surface-50-950 xl:px-10"
+		class="grid w-full grid-cols-[auto_1fr_auto] grid-rows-1 items-center p-4 py-3 preset-tonal-surface border-b-[1px] border-surface-500/20 xl:px-10"
 	>
 		<School size={28} />
 		<a href="/" class="font-heading-token ps-2 text-3xl"> Dan grupper </a>
@@ -120,26 +128,29 @@
 		</div>
 	</header>
 	<!-- Grid Columns -->
-	<div class="grid grid-cols-1 grid-cols-[auto_1fr]">
+	<div class="grid grid-cols-[auto_1fr]">
 		<!-- Left Sidebar -->
-		<Navigation.Rail classes="h-full w-full preset-filled-surface-100-900">
+		<Navigation.Rail {expanded} background="preset-tonal-surface">
 			{#snippet header()}
-				<Navigation.Tile selected={page.url.pathname == '/'} href="/" label="Vejledning">
+				<Navigation.Tile labelExpanded="Menu" onclick={toggleExpanded} title="Slå bred menu til/fra" {...common}>
+					<Menu size={32} />
+				</Navigation.Tile>
+				<Navigation.Tile selected={page.url.pathname == '/'} href="/" label="Vejledning" labelExpanded="Vejledning" {...common}>
 					<CircleHelp size={32} />
 				</Navigation.Tile>
 				{#each data.classes.map((c) => c.name).toSorted() as className}
-					{@const url = `/hold/${classNameUrlName(className)}/`}
-					<Navigation.Tile selected={page.url.pathname.startsWith(url)} label={getMenuName(className)} href={url}>
+					{@const url = `/hold/${classNameToUrlName(className)}/`}
+					<Navigation.Tile selected={page.url.pathname.startsWith(url)} label={getMenuName(className)} labelExpanded={className} href={url} {...common}>
 						<UsersRound size={32} />
 					</Navigation.Tile>
 				{/each}
-				<Navigation.Tile selected={page.url.pathname.startsWith('/tilf')} href="/tilføj/" label="Tilføj hold">
+				<Navigation.Tile selected={page.url.pathname.startsWith('/tilf')} href="/tilføj/" label="Tilføj hold" labelExpanded="Tilføj hold" {...common}>
 					<CirclePlus size={32} />
 				</Navigation.Tile>
 			{/snippet}
 		</Navigation.Rail>
 		<!-- Main Content -->
-		<main class="container space-y-4 p-4 ps-8 pt-6">
+		<main class="space-y-4 p-6">
 			{@render children()}
 		</main>
 	</div>

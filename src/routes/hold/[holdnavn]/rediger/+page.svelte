@@ -3,7 +3,7 @@
 	import ClassForm from '$lib/ClassForm.svelte';
 	import { editClass } from '$lib/persistence.svelte';
 	import { toaster } from '$lib/toaster-svelte';
-	import { classNameUrlName, getNextStudentId } from '$lib/utils';
+	import { classNameToUrlName, getNextStudentId } from '$lib/utils';
 	import type { PageProps } from '../$types';
 
 	let { data }: PageProps = $props();
@@ -19,7 +19,7 @@
 		const id = data.currentClass.id;
 		editClass(id, name, studs)
 			.then(() => {
-				goto(`/hold/${classNameUrlName(name)}`, { invalidateAll: true });
+				goto(`/hold/${classNameToUrlName(name)}/`, { invalidateAll: true });
 				return;
 			})
 			.catch((error) => {
@@ -27,8 +27,8 @@
 				toaster.error({
 					title: 'Kunne ikke redigere hold',
 					description: error.message,
-				});
 			});
+		});
 	}
 </script>
 

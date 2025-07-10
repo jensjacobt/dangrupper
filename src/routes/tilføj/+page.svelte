@@ -3,7 +3,7 @@
 	import ClassForm from '$lib/ClassForm.svelte';
 	import { addClass, setClassBeingAdded } from '$lib/persistence.svelte';
 	import { toaster } from '$lib/toaster-svelte';
-	import { classNameUrlName, getNextStudentId } from '$lib/utils';
+	import { classNameToUrlName, getNextStudentId } from '$lib/utils';
 	import type { PageProps } from './$types';
 
 	const { data }: PageProps = $props();
@@ -31,7 +31,7 @@
 		addClass(name, studs)
 			.then(() => {
 				resetClassBeingAdded();
-				goto(`/hold/${classNameUrlName(name)}`, { invalidateAll: true });
+				goto(`/hold/${classNameToUrlName(name)}/`, { invalidateAll: true });
 				return;
 			})
 			.catch((error) => {

@@ -1,9 +1,9 @@
 export function urlNameToClassName(urlName: string): string {
-	return urlName.replaceAll('_', ' ');
+	return decodeURI(urlName).replaceAll('_', ' ');
 }
 
-export function classNameUrlName(urlName: string): string {
-	return urlName.replaceAll(' ', '_');
+export function classNameToUrlName(className: string): string {
+	return encodeURI(className.replaceAll(' ', '_'));
 }
 
 export function getNextStudentId(students: Student[]) {

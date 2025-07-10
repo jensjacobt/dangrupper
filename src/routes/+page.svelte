@@ -2,6 +2,7 @@
 	import { Download } from "lucide-svelte";
 
 </script>
+
 <h2 class="h2">Vejledning</h2>
 <p>Fremgangsmåde:</p>
 <ol class="list-decimal ps-8">

@@ -4,6 +4,7 @@ import { validateClassName, validateStudents } from './validation.svelte';
 
 const classesKey = 'classes';
 const classBeingAddedKey = 'class-being-added';
+const activeGroupTypeKey = 'active-group-type';
 const tableGroupsKey = 'tableGroups';
 const tableGroupsHistoryKey = `${tableGroupsKey}-history`;
 
@@ -106,6 +107,17 @@ export async function getClassBeingAdded() {
 export async function setClassBeingAdded(className: string, students: Student[]) {
 	const classBeingAdded = { name: className, students: students };
 	setStored<ClassBeingAdded>(classBeingAddedKey, classBeingAdded, "data om klassen, der skal oprettes,");
+}
+
+/* Active Group Type */
+export async function getActiveGroupType(classId: string) {
+	const key = `${activeGroupTypeKey}_${classId}`;
+	return (await getStored<ActiveGroupType>(key)) ?? 'bordgrupper'; 
+}
+
+export async function setActiveGroupType(classId: string, activeGroupType: ActiveGroupType) {
+	const key = `${activeGroupTypeKey}_${classId}`;
+	setStored(key, activeGroupType, "aktive gruppetyper"); 
 }
 
 /* Table Groups */
