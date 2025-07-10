@@ -61,7 +61,7 @@
 	}
 
 	function getTabClass(agt: ActiveGroupType) {
-		if (page.route.id === `/hold/[holdnavn]/${agt}`) {
+		if (page.route.id?.startsWith(`/hold/[holdnavn]/${agt}`)) {
 			return 'btn preset-filled'
 		}
 		return 'btn hover:preset-filled-surface-50-950'
