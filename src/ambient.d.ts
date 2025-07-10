@@ -1,52 +1,52 @@
-declare type Grade = -3 | 0 | 2 | 4 | 7 | 10 | 12;
+declare type Grade = -3 | 0 | 2 | 4 | 7 | 10 | 12
 
-declare type idNumber = number; // must be a positive integer
+declare type idNumber = number // must be a positive integer
 
-declare type maybeIdNumber = idNumber | null;
+declare type maybeIdNumber = idNumber | null
 
 declare type Student = {
-	id: idNumber;
-	name: string;
-	gender?: 'm' | 'k';
-	writtenGrade?: Grade;
-	oralGrade?: Grade;
-	effort?: Grade;
-};
+	id: idNumber
+	name: string
+	gender?: 'm' | 'k'
+	writtenGrade?: Grade
+	oralGrade?: Grade
+	effort?: Grade
+}
 
 declare type Class = {
-	id: string;
-	name: string;
-	students: Student[];
-};
+	id: string
+	name: string
+	students: Student[]
+}
 
 declare type ClassBeingAdded = {
-	name: string,
+	name: string
 	students: Student[]
 }
 
 declare type ActiveGroupType = 'bordgrupper' | 'tilfældige-grupper'
 
 declare type TableGroups = {
-	maxRecurring: number;
-	nLastGroups: number;
-	predefinedGroups: maybeIdNumber[][];
-	currentGroups: idNumber[][];
-	warningText: string;
-    errorText: string;
-    saved: boolean;
-};
+	maxRecurring: number
+	nLastGroups: number
+	predefinedGroups: maybeIdNumber[][]
+	currentGroups: idNumber[][]
+	warningText: string
+	errorText: string
+	saved: boolean
+}
 
 declare type HistoryEntry = {
-	createdAt: string;
-	groups: idNumber[][];
+	createdAt: string
+	groups: idNumber[][]
 }
 
 type ExportObject = {
-	classes: Class[];
-	keyval: [key: IDBValidKey, val: any][]; // eslint-disable-line @typescript-eslint/no-explicit-any
+	classes: Class[]
+	keyval: [key: IDBValidKey, val: any][] // eslint-disable-line @typescript-eslint/no-explicit-any
 }
 
 type ImportObject = {
-	classes: (Class & {conflictingClass: Class?})[];
-	keyval: [key: string, val: any][]; // eslint-disable-line @typescript-eslint/no-explicit-any
+	classes: (Class & { conflictingClass: Class? })[]
+	keyval: [key: string, val: any][] // eslint-disable-line @typescript-eslint/no-explicit-any
 }

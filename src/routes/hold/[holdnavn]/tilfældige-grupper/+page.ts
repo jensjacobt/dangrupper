@@ -1,6 +1,6 @@
-import type { PageLoad } from './$types';
+import type { PageLoad } from './$types'
 
 export const load = (async () => {
-    // TODO: Indlæs gruppedata for tilfældige grupper.
-    return {};
-}) satisfies PageLoad;
+	// TODO: Indlæs gruppedata for tilfældige grupper.
+	return {}
+}) satisfies PageLoad

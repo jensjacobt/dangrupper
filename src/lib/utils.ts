@@ -1,13 +1,13 @@
 export function urlNameToClassName(urlName: string): string {
-	return decodeURI(urlName).replaceAll('_', ' ');
+	return decodeURI(urlName).replaceAll('_', ' ')
 }
 
 export function classNameToUrlName(className: string): string {
-	return encodeURI(className.replaceAll(' ', '_'));
+	return encodeURI(className.replaceAll(' ', '_'))
 }
 
 export function getNextStudentId(students: Student[]) {
-	let id = 0;
+	let id = 0
 	for (const s of students) {
 		if (s.id > id) {
 			id = s.id
@@ -17,16 +17,16 @@ export function getNextStudentId(students: Student[]) {
 }
 
 export function groupsFromIds(ids: maybeIdNumber[][], klass: Class): Student[][] {
-	const groups = [];
+	const groups = []
 	for (const groupIds of ids) {
-		const group: Student[] = [];
+		const group: Student[] = []
 		for (const id of groupIds) {
-			const student = klass.students.find((s) => s.id == id);
+			const student = klass.students.find((s) => s.id == id)
 			if (student) {
-				group.push(student);
+				group.push(student)
 			}
 		}
-		groups.push(group);
+		groups.push(group)
 	}
-	return groups;
+	return groups
 }

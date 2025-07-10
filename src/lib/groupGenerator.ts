@@ -1,136 +1,128 @@
 export function getEmptyPredefinedGroups(numStudents: number): maybeIdNumber[][] {
-	return getGroupSizes(numStudents).map((gs) => Array(gs).fill(null));
+	return getGroupSizes(numStudents).map((gs) => Array(gs).fill(null))
 }
 
-const random = (function() {
+const random = (function () {
 	if (!crypto) return Math.random
 
 	const max = Math.pow(2, 32)
 	const u32 = new Uint32Array(1)
 
-	return function random () {
+	return function random() {
 		return crypto.getRandomValues(u32)[0] / max
 	}
-})();
+})()
 
-type TableOfPartners = Map<idNumber, Set<idNumber>>;
+type TableOfPartners = Map<idNumber, Set<idNumber>>
 
 export function createTableGroups(
 	students: Student[],
 	history: HistoryEntry[],
-	tableGroups: TableGroups
+	tableGroups: TableGroups,
 ): [groups: idNumber[][], overMaxPredefined: maybeIdNumber[][]] {
-	const studentIds = students.map((s) => s.id);
-	const maxReps = 1 + tableGroups.maxRecurring;
-	const overMaxPredefined: maybeIdNumber[][] = [];
-	const tableOfPartners = getTableOfPreviousPartners(studentIds, history, tableGroups.nLastGroups);
-	const predefinedGroups = tableGroups.predefinedGroups.toReversed();
+	const studentIds = students.map((s) => s.id)
+	const maxReps = 1 + tableGroups.maxRecurring
+	const overMaxPredefined: maybeIdNumber[][] = []
+	const tableOfPartners = getTableOfPreviousPartners(studentIds, history, tableGroups.nLastGroups)
+	const predefinedGroups = tableGroups.predefinedGroups.toReversed()
 
-	let preassigned = new Set<idNumber>();
-	const nonNull = (s: maybeIdNumber) => s !== null;
+	let preassigned = new Set<idNumber>()
+	const nonNull = (s: maybeIdNumber) => s !== null
 	for (const pg of predefinedGroups) {
-		const ss = new Set(pg.filter(nonNull));
+		const ss = new Set(pg.filter(nonNull))
 		if (ss.size > 0) {
 			for (const s of ss) {
 				if (!studentIds.includes(s)) {
-					throw Error(`Den indtastede person med id "${s}" kunne ikke findes på listen over elever`);
+					throw Error(`Den indtastede person med id "${s}" kunne ikke findes på listen over elever`)
 				}
 			}
 			if (tooManyReps(tableOfPartners, ss, maxReps)) {
-				overMaxPredefined.push(pg);
+				overMaxPredefined.push(pg)
 				for (const s of ss) {
-					tableOfPartners.set(s, (tableOfPartners.get(s) as Set<idNumber>).difference(ss));
+					tableOfPartners.set(s, (tableOfPartners.get(s) as Set<idNumber>).difference(ss))
 				}
 			}
 		}
-		preassigned = preassigned.union(ss);
+		preassigned = preassigned.union(ss)
 	}
-	const assignableStudents = studentIds.filter((s) => !preassigned.has(s));
+	const assignableStudents = studentIds.filter((s) => !preassigned.has(s))
 	// TODO: Tjek at assignableStudents passer med antal null i tableGroups.predefinedGroups
 
 	for (let j = 0; j < 250; j++) {
-		let rest = assignableStudents.slice(0);
-		const predefined = predefinedGroups.slice(0);
+		let rest = assignableStudents.slice(0)
+		const predefined = predefinedGroups.slice(0)
 
-		const groups: idNumber[][] = [];
+		const groups: idNumber[][] = []
 		for (let i = 0; i < 100; i++) {
-			if (predefined.length == 0) break;
+			if (predefined.length == 0) break
 
-			const pred = predefined[predefined.length - 1];
-			const group = groupFromPredefined(pred, rest);
+			const pred = predefined[predefined.length - 1]
+			const group = groupFromPredefined(pred, rest)
 			if (!tooManyReps(tableOfPartners, new Set(group), maxReps)) {
-				rest = rest.filter((s) => !group.includes(s));
-				predefined.pop();
-				groups.push(group);
+				rest = rest.filter((s) => !group.includes(s))
+				predefined.pop()
+				groups.push(group)
 			}
 		}
 
 		if (groups.reduce((acc, val) => acc + val.length, 0) == studentIds.length) {
-			return [groups, overMaxPredefined];
+			return [groups, overMaxPredefined]
 		}
 	}
 
-	return [[], overMaxPredefined];
+	return [[], overMaxPredefined]
 }
 
 function groupFromPredefined(predefinedGroup: maybeIdNumber[], students: idNumber[]): idNumber[] {
-	const group: idNumber[] = [];
-	const oldIndexes: number[] = [];
-	let index;
+	const group: idNumber[] = []
+	const oldIndexes: number[] = []
+	let index
 	for (const p of predefinedGroup) {
 		if (p !== null) {
-			group.push(p);
+			group.push(p)
 		} else {
 			do {
-				index = Math.floor(random() * students.length);
-			} while (oldIndexes.includes(index));
-			group.push(students[index]);
-			oldIndexes.push(index);
+				index = Math.floor(random() * students.length)
+			} while (oldIndexes.includes(index))
+			group.push(students[index])
+			oldIndexes.push(index)
 		}
 	}
-	return group;
+	return group
 }
 
-function tooManyReps(
-	tableOfPartners: TableOfPartners,
-	groupSet: Set<idNumber>,
-	maxReps: number
-): boolean {
+function tooManyReps(tableOfPartners: TableOfPartners, groupSet: Set<idNumber>, maxReps: number): boolean {
 	// OBS: maxReps = 1: ingen har været i gruppe med de andre før
 	//      maxReps = 2: hver elev har højst været i gruppe med én anden elev før
-	const emptySet = new Set();
+	const emptySet = new Set()
 	for (const s of groupSet) {
-		const previousPartners = groupSet.intersection(tableOfPartners.get(s) ?? emptySet);
+		const previousPartners = groupSet.intersection(tableOfPartners.get(s) ?? emptySet)
 		if (previousPartners.size > maxReps) {
-			return true;
+			return true
 		}
 	}
-	return false;
+	return false
 }
 
 // OBS: Man er selv en tidligere gruppemakker
-function getTableOfPreviousPartners(
-	studentIds: idNumber[],
-	history: HistoryEntry[],
-	maxBack: number
-): TableOfPartners {
-	const groupsBack = Math.min(maxBack, history.length);
-	const tableOfPartners: TableOfPartners = new Map<idNumber, Set<idNumber>>();
+function getTableOfPreviousPartners(studentIds: idNumber[], history: HistoryEntry[], maxBack: number): TableOfPartners {
+	const groupsBack = Math.min(maxBack, history.length)
+	const tableOfPartners: TableOfPartners = new Map<idNumber, Set<idNumber>>()
 	for (const s of studentIds) {
-		const partners = new Set<idNumber>([]);
+		const partners = new Set<idNumber>([])
 		for (let i = 1; i <= groupsBack; i++) {
-			const groups = history[history.length-i].groups;
+			const groups = history[history.length - i].groups
 			for (const g of groups) {
 				if (g.includes(s)) {
 					for (const gs of g) {
-						partners.add(gs);
+						partners.add(gs)
 					}
 				}
 			}
 		}
-		tableOfPartners.set(s, partners);
+		tableOfPartners.set(s, partners)
 	}
-	return tableOfPartners;
+	return tableOfPartners
 }
 
 // function getRandomGroups(students: Student[]): idNumber[][] {
@@ -158,17 +150,15 @@ function getTableOfPreviousPartners(
  * g: max number of students per group
  */
 function getGroupSizes(n: number, g: number = 4): number[] {
-	if (n <= g) return [n];
-	if (n % g == 0) return Array(n / g).fill(g);
+	if (n <= g) return [n]
+	if (n % g == 0) return Array(n / g).fill(g)
 	if (n % g == 1) {
-		const a = Array(Math.floor(n / g) + 1).fill(g, 0, -2);
-		a[a.length - 2] = g - 1;
-		a[a.length - 1] = 2;
-		return a;
+		const a = Array(Math.floor(n / g) + 1).fill(g, 0, -2)
+		a[a.length - 2] = g - 1
+		a[a.length - 1] = 2
+		return a
 	}
-	const a = Array(Math.floor(n / g) + 1).fill(g);
-	a[a.length - 1] = n % g;
-	return a;
+	const a = Array(Math.floor(n / g) + 1).fill(g)
+	a[a.length - 1] = n % g
+	return a
 }
-
-

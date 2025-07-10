@@ -1,6 +1,5 @@
 <script>
-	import { Download } from "lucide-svelte";
-
+	import { Download } from 'lucide-svelte'
 </script>
 
 <h2 class="h2">Vejledning</h2>
@@ -12,5 +11,9 @@
 	<li>Dan bordgrupper (knap)</li>
 	<li>Gem bordgrupper (knap)</li>
 	<li>Eksporter billede af grupper (eller indhold klar til at indsætte i Excel) (knap)</li>
-	<li>Tag evt. backup – da din browser kan vælge at slette app'ens database. Download Backup-fil vha. knappen <Download class="inline" size={20} /> øverst til højre på enhver side.</li>
+	<li>
+		Tag evt. backup – da din browser kan vælge at slette app'ens database. Download Backup-fil vha. knappen
+		<Download class="inline" size={20} />
+		øverst til højre på enhver side.
+	</li>
 </ol>
