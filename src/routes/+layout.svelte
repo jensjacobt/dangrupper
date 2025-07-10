@@ -101,9 +101,9 @@
 			});
 	}
 
-	function getMenuName(className: string) {
-		if (className.length <= 7) return className;
-		return `${className.substring(0,5)}...`
+	function getMenuName(className: string, maxLength: number) {
+		if (className.length <= maxLength) return className;
+		return `${className.substring(0, maxLength-2)}...`
 	}
 
 	const common = {active: "preset-filled", hover: "hover:bg-white"}
@@ -135,16 +135,16 @@
 				<Navigation.Tile labelExpanded="Menu" onclick={toggleExpanded} title="Slå bred menu til/fra" {...common}>
 					<Menu size={32} />
 				</Navigation.Tile>
-				<Navigation.Tile selected={page.url.pathname == '/'} href="/" label="Vejledning" labelExpanded="Vejledning" {...common}>
+				<Navigation.Tile selected={page.route.id == '/'} href="/" label="Vejledning" labelExpanded="Vejledning" {...common}>
 					<CircleHelp size={32} />
 				</Navigation.Tile>
 				{#each data.classes.map((c) => c.name).toSorted() as className}
 					{@const url = `/hold/${classNameToUrlName(className)}/`}
-					<Navigation.Tile selected={page.url.pathname.startsWith(url)} label={getMenuName(className)} labelExpanded={className} href={url} {...common}>
+					<Navigation.Tile selected={page.url.pathname.startsWith(url)} href={url} label={getMenuName(className, 7)} labelExpanded={getMenuName(className, 16)} {...common}>
 						<UsersRound size={32} />
 					</Navigation.Tile>
 				{/each}
-				<Navigation.Tile selected={page.url.pathname.startsWith('/tilf')} href="/tilføj/" label="Tilføj hold" labelExpanded="Tilføj hold" {...common}>
+				<Navigation.Tile selected={page.route.id === '/tilføj'} href="/tilføj/" label="Tilføj hold" labelExpanded="Tilføj hold" {...common}>
 					<CirclePlus size={32} />
 				</Navigation.Tile>
 			{/snippet}

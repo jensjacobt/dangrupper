@@ -17,7 +17,7 @@
 
 	function editClass() {
 		const classUrlName = classNameToUrlName(data.currentClass.name);
-		goto(`/hold/${classUrlName}/rediger`);
+		goto(`/hold/${classUrlName}/rediger/`);
 	}
 
 	function exportClass() {
@@ -60,8 +60,7 @@
 	}
 
 	function getTabClass(agt: ActiveGroupType) {
-		const agtUrl = `/hold/${classNameToUrlName(data.currentClass.name)}/${encodeURI(agt)}`;
-		if (page.url.pathname.startsWith(agtUrl)) {
+		if (page.route.id === `/hold/[holdnavn]/${agt}`) {
 			return "btn preset-filled";
 		}
 		return "btn hover:preset-filled-surface-50-950";
