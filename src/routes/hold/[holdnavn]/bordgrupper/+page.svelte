@@ -4,6 +4,7 @@
 	import { addToTableGroupsHistory, setTableGroups } from '$lib/persistence.svelte'
 	import { toaster } from '$lib/toaster'
 	import { groupsFromIds } from '$lib/utils'
+	import { Check } from 'lucide-svelte'
 	import Svelecte from 'svelecte'
 	import type { PageProps } from './$types'
 	import OutputTableHorizontal from './OutputTableHorizontal.svelte'
@@ -11,14 +12,15 @@
 	let { data }: PageProps = $props()
 
 	let tableGroups = $state() as TableGroups
-	let displayGroups = $state() as Student[][]
 	let options = $state() as Student[]
+	const displayGroups = $derived(
+		tableGroups.currentGroups ? groupsFromIds(tableGroups.currentGroups, data.currentClass) : [],
+	)
 
 	$effect.pre(() => {
 		// needed for navigation between classes
 		console.log('Reading in loaded data')
 		tableGroups = data.initialTableGroups
-		displayGroups = groupsFromIds(data.initialTableGroups.currentGroups, data.currentClass)
 		options = data.currentClass.students
 	})
 
@@ -36,7 +38,9 @@
 	function clearPredefinedGroups() {
 		// avoids changing group sizes
 		for (let i = 0; i < tableGroups.predefinedGroups.length; i++) {
-			for (let j = 0; j < tableGroups.predefinedGroups[i].length; j++) tableGroups.predefinedGroups[i][j] = null
+			for (let j = 0; j < tableGroups.predefinedGroups[i].length; j++) {
+				tableGroups.predefinedGroups[i][j] = null
+			}
 		}
 	}
 
@@ -49,7 +53,6 @@
 				$state.snapshot(tableGroups),
 			)
 			tableGroups.currentGroups = groups
-			displayGroups = groupsFromIds(groups, data.currentClass)
 			tableGroups.errorText =
 				groups.length ? '' : 'Grupper kunne ikke dannes. Justér evt. indstillingerne (så der er lavere krav).'
 			if (overMaxPredefined.length == 0) {
@@ -63,12 +66,8 @@
 				tableGroups.warningText = warningStart + groupStrs.join(', ')
 			}
 		} catch (error) {
-			displayGroups = []
 			console.error(error)
-			toaster.error({
-				title: 'Ukendt fejl under gruppedannelse',
-				description: 'Kontakt udvikleren hvis det fortsætter.',
-			})
+			tableGroups.errorText = 'Ukendt fejl fejl under gruppedannelse. Kontakt udvikleren hvis det fortsætter.'
 		}
 	}
 
@@ -139,21 +138,23 @@
 {#if displayGroups.length || tableGroups.errorText.length}
 	<h4 class="mt-6 mb-0 h4">Nye grupper</h4>
 	{#if tableGroups.errorText}
-		<div class="card preset-filled-error-500 p-4">{tableGroups.errorText}</div>
+		<div class="mt-4 card preset-filled-error-500 p-4">{tableGroups.errorText}</div>
 	{/if}
 	{#if tableGroups.warningText}
-		<div class="card preset-filled-warning-500 p-4">{tableGroups.warningText}</div>
+		<div class="mt-4 card preset-filled-warning-500 p-4">{tableGroups.warningText}</div>
 	{/if}
+{/if}
+{#if !tableGroups.errorText.length && displayGroups.length}
 	<DisplayGroups groups={displayGroups} />
-{/if}
-
-{#if !tableGroups.saved && displayGroups.length}
-	<button class="btn preset-filled-primary-500" onclick={saveGroups}> Gem grupper </button>
-{/if}
-{#if tableGroups.saved && displayGroups.length}
-	<div class="w-80 card preset-tonal-success p-4">Grupper gemt!</div>
-	<h4 class="mt-6 h4">Eksporter grupper</h4>
-	<OutputTableHorizontal groups={displayGroups} />
+	{#if !tableGroups.saved}
+		<button class="btn preset-filled-primary-500" onclick={saveGroups}>Gem grupper</button>
+	{:else}
+		<button class="chip preset-tonal-success px-3 py-2 base-font-size">
+			Grupper gemt <Check size={16} />
+		</button>
+		<h4 class="mt-6 h4">Eksportér grupper</h4>
+		<OutputTableHorizontal groups={displayGroups} />
+	{/if}
 {/if}
 
 <div style="height: 80vh"></div>
