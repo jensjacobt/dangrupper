@@ -1,5 +1,7 @@
+import { error } from '@sveltejs/kit'
 import { delMany, entries, get, keys, set, setMany, update } from 'idb-keyval'
 import { toaster } from './toaster'
+import { urlNameToClassName } from './utils'
 import { validateClassName, validateStudents } from './validation.svelte'
 
 const classesKey = 'classes'
@@ -35,16 +37,15 @@ export async function getClasses() {
 	return (await getStored<Class[]>(classesKey)) ?? []
 }
 
-function trimAndValidateClass(className: string, students: Student[]): [className: string, students: Student[]] {
-	className = className.trim()
-	let message = validateClassName(className)
-	if (message) throw Error(message)
-
-	students = students.map((s) => ({ ...s, name: s.name.trim() })).filter((s) => s.name != '')
-	message = validateStudents(students)
-	if (message) throw Error(message)
-
-	return [className, students]
+export async function getCurrentClass(holdnavn: string) {
+	const className = urlNameToClassName(holdnavn)
+	const classes = await getClasses()
+	const currentClass = classes.find((c) => c.name == className)
+	if (!currentClass) {
+		console.error(`"${className}" blev ikke fundet blandt holdnavne`)
+		error(404, 'Holdet blev ikke fundet')
+	}
+	return currentClass
 }
 
 export async function addClass(className: string, students: Student[]): Promise<void> {
@@ -84,6 +85,18 @@ export async function editClass(id: string, className: string, students: Student
 		}
 		return newClasses
 	})
+}
+
+function trimAndValidateClass(className: string, students: Student[]): [className: string, students: Student[]] {
+	className = className.trim()
+	let message = validateClassName(className)
+	if (message) throw Error(message)
+
+	students = students.map((s) => ({ ...s, name: s.name.trim() })).filter((s) => s.name != '')
+	message = validateStudents(students)
+	if (message) throw Error(message)
+
+	return [className, students]
 }
 
 export async function removeClass(klass: Class): Promise<void> {
