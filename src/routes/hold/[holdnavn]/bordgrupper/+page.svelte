@@ -112,7 +112,7 @@
 	sidste grupper.
 </p>
 
-<h4 class="mt-6 mb-0 h4">Forudbestemte medlemmer</h4>
+<h5 class="mt-6 mb-0 h5">Forudbestemte medlemmer</h5>
 <div class="flex flex-wrap gap-4">
 	{#each tableGroups.predefinedGroups as _, i}
 		<div class="w-40 card">

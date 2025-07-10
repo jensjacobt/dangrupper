@@ -7,8 +7,9 @@ import { validateClassName, validateStudents } from './validation.svelte'
 const classesKey = 'classes'
 const classBeingAddedKey = 'class-being-added'
 const activeGroupTypeKey = 'active-group-type'
-const tableGroupsKey = 'tableGroups'
+const tableGroupsKey = 'table-groups'
 const tableGroupsHistoryKey = `${tableGroupsKey}-history`
+const randomGroupsKey = 'random-groups'
 
 /* Get from and set in DB with claimed type and logging/warnings */
 function getStored<T>(key: string): Promise<T | undefined> {
@@ -151,7 +152,7 @@ export async function getTableGroups(classId: string) {
 
 export function setTableGroups(classId: string, tableGroups: TableGroups) {
 	const key = `${tableGroupsKey}_${classId}`
-	setStored<TableGroups>(key, tableGroups, 'bordgrupper')
+	setStored(key, tableGroups, 'bordgrupper')
 }
 
 export async function getTableGroupsHistory(classId: string) {
@@ -173,6 +174,25 @@ export async function removeFromTableGroupsHistory(classId: string, historyEntry
 		return old.filter((h) => h.createdAt !== historyEntry.createdAt)
 	})
 	return await getTableGroupsHistory(classId)
+}
+
+/* Random Groups */
+export async function getRandomGroups(classId: string) {
+	const key = `${randomGroupsKey}_${classId}`
+	return (
+		(await getStored<RandomGroups>(key)) ?? {
+			type: 'groupSize',
+			groupSize: 4,
+			groupNumber: 8,
+			absentStudentIds: [],
+			currentGroups: [],
+		}
+	)
+}
+
+export function setRandomGroups(classId: string, randomGroups: RandomGroups) {
+	const key = `${randomGroupsKey}_${classId}`
+	setStored(key, randomGroups, 'tilfældige grupper')
 }
 
 /* Export */

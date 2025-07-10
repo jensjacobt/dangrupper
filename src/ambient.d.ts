@@ -41,6 +41,16 @@ declare type HistoryEntry = {
 	groups: idNumber[][]
 }
 
+declare type RandomGroups = {
+	type: SizeType
+	groupSize: number
+	groupNumber: number
+	absentStudentIds: idNumber[]
+	currentGroups: idNumber[][]
+}
+
+declare type SizeType = 'groupSize' | 'groupNumber'
+
 type ExportObject = {
 	classes: Class[]
 	keyval: [key: IDBValidKey, val: any][] // eslint-disable-line @typescript-eslint/no-explicit-any

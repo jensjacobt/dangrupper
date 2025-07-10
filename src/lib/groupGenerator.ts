@@ -1,5 +1,6 @@
+/* Table Groups */
 export function getEmptyPredefinedGroups(numStudents: number): maybeIdNumber[][] {
-	return getGroupSizes(numStudents).map((gs) => Array(gs).fill(null))
+	return getTableGroupSizes(numStudents).map((gs) => Array(gs).fill(null))
 }
 
 const random = (function () {
@@ -125,31 +126,11 @@ function getTableOfPreviousPartners(studentIds: idNumber[], history: HistoryEntr
 	return tableOfPartners
 }
 
-// function getRandomGroups(students: Student[]): idNumber[][] {
-// 	const shuffled = students.map((s) => s.id);
-// 	shuffleArray(shuffled);
-// 	const sizes = getGroupSizes(students.length);
-// 	const groups = [];
-// 	let i = 0;
-// 	for (const size of sizes) {
-// 		groups.push(shuffled.slice(i, i + size));
-// 		i += size;
-// 	}
-// 	return groups;
-// }
-
-// function shuffleArray(array: any[]) {
-// 	for (let i = array.length - 1; i >= 0; i--) {
-// 		const j = Math.floor(random() * (i + 1));
-// 		[array[i], array[j]] = [array[j], array[i]];
-// 	}
-// }
-
 /**
  * n: number of students in class
  * g: max number of students per group
  */
-function getGroupSizes(n: number, g: number = 4): number[] {
+function getTableGroupSizes(n: number, g: number = 4): number[] {
 	if (n <= g) return [n]
 	if (n % g == 0) return Array(n / g).fill(g)
 	if (n % g == 1) {
@@ -160,5 +141,39 @@ function getGroupSizes(n: number, g: number = 4): number[] {
 	}
 	const a = Array(Math.floor(n / g) + 1).fill(g)
 	a[a.length - 1] = n % g
+	return a
+}
+
+/* Random Groups*/
+export function createRandomGroups(students: idNumber[], numberOfGroups: number) {
+	shuffleArray(students)
+	const sizes = getRandomGroupSizes(students.length, numberOfGroups)
+	const groups = []
+	let i = 0
+	for (const size of sizes) {
+		groups.push(students.slice(i, i + size))
+		i += size
+	}
+	return groups
+}
+
+function shuffleArray(array: unknown[]) {
+	for (let i = array.length - 1; i >= 0; i--) {
+		const j = Math.floor(random() * (i + 1))
+		;[array[i], array[j]] = [array[j], array[i]]
+	}
+}
+
+/**
+ * ns: number of students
+ * ng: number of groups
+ */
+function getRandomGroupSizes(ns: number, ng: number): number[] {
+	const remainder = ns % ng
+	const quotient = Math.floor(ns / ng)
+	const a = Array(ng).fill(quotient)
+	for (let i = 0; i < remainder; i++) {
+		a[i]++
+	}
 	return a
 }

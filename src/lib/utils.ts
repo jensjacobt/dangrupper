@@ -16,17 +16,21 @@ export function getNextStudentId(students: Student[]) {
 	return id + 1
 }
 
-export function groupsFromIds(ids: maybeIdNumber[][], klass: Class): Student[][] {
+export function studentsFromIds(studentIds: maybeIdNumber[], klass: Class) {
+	const group: Student[] = []
+	for (const id of studentIds) {
+		const student = klass.students.find((s) => s.id == id)
+		if (student) {
+			group.push(student)
+		}
+	}
+	return group
+}
+
+export function groupsFromIds(ids: maybeIdNumber[][], klass: Class) {
 	const groups = []
 	for (const groupIds of ids) {
-		const group: Student[] = []
-		for (const id of groupIds) {
-			const student = klass.students.find((s) => s.id == id)
-			if (student) {
-				group.push(student)
-			}
-		}
-		groups.push(group)
+		groups.push(studentsFromIds(groupIds, klass))
 	}
 	return groups
 }
