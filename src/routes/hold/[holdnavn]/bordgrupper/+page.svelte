@@ -21,7 +21,7 @@
 		// needed for navigation between classes
 		console.log('Reading in loaded data')
 		tableGroups = data.initialTableGroups
-		options = data.currentClass.students
+		options = data.currentClass.students // needed trick for Svelecte
 	})
 
 	$effect(() => {
@@ -133,6 +133,7 @@
 	{/each}
 </div>
 <button class="mr-3 btn preset-filled-primary-500" onclick={createGroups}> Dan grupper </button>
+<!-- TODO: Evt. "Er du sikker?" -->
 <button class="btn preset-outlined-primary-500" onclick={clearPredefinedGroups}> Ryd forudbestemte medlemmer </button>
 
 {#if displayGroups.length || tableGroups.errorText.length}

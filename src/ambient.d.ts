@@ -24,7 +24,7 @@ declare type ClassBeingAdded = {
 	students: Student[]
 }
 
-declare type ActiveGroupType = 'bordgrupper' | 'tilfældige-grupper'
+declare type ActiveGroupType = 'bordgrupper' | 'manuelle-grupper' | 'tilfældige-grupper'
 
 declare type TableGroups = {
 	maxRecurring: number
@@ -39,6 +39,10 @@ declare type TableGroups = {
 declare type HistoryEntry = {
 	createdAt: string
 	groups: idNumber[][]
+}
+
+declare type ManualGroups = {
+	currentGroups: idNumber[][]
 }
 
 declare type RandomGroups = {

@@ -71,7 +71,7 @@
 <!-- Class bar -->
 <nav class="mb-6 btn-group flex w-full flex-col items-start bg-surface-50-950 p-2">
 	<div class="grid w-full grid-cols-[1fr_auto] gap-16 whitespace-nowrap">
-		<h2 class="h2">{data.currentClass.name}</h2>
+		<h2 class="h2 ml-4">{data.currentClass.name}</h2>
 		<span class="flex items-start gap-4">
 			<button type="button" class="btn preset-filled-primary-500" onclick={editClass}> Redigér hold </button>
 			<button type="button" class="btn preset-filled-primary-500" onclick={exportClass}> Eksportér hold </button>
@@ -99,10 +99,13 @@
 		</span>
 	</div>
 	<div class="mt-4 flex flex-wrap gap-2">
-		<button type="button" class={getTabClass('bordgrupper')} onclick={() => go('bordgrupper')}>Bordgrupper</button>
-		<button type="button" class={getTabClass('tilfældige-grupper')} onclick={() => go('tilfældige-grupper')}
-			>Tilfældige grupper</button
-		>
+		<button type="button" class={getTabClass('bordgrupper')} onclick={() => go('bordgrupper')}> Bordgrupper </button>
+		<button type="button" class={getTabClass('manuelle-grupper')} onclick={() => go('manuelle-grupper')}>
+			Manuelle grupper
+		</button>
+		<button type="button" class={getTabClass('tilfældige-grupper')} onclick={() => go('tilfældige-grupper')}>
+			Tilfældige grupper
+		</button>
 
 		<!-- <button type="button" class="btn hover:preset-filled-surface-50-950">Homogene grupper</button>
 		<button type="button" class="btn hover:preset-filled-surface-50-950">Heterogene grupper</button>

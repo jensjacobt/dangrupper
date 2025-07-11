@@ -34,3 +34,11 @@ export function groupsFromIds(ids: maybeIdNumber[][], klass: Class) {
 	}
 	return groups
 }
+
+export function idsFromGroups(groups: Student[][]) {
+	const groupIds = []
+	for (const g of groups) {
+		groupIds.push(g.map((s) => s.id))
+	}
+	return groupIds
+}

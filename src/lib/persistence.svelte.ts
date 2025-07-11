@@ -9,6 +9,7 @@ const classBeingAddedKey = 'class-being-added'
 const activeGroupTypeKey = 'active-group-type'
 const tableGroupsKey = 'table-groups'
 const tableGroupsHistoryKey = `${tableGroupsKey}-history`
+const manualGroupsKey = 'manual-groups'
 const randomGroupsKey = 'random-groups'
 
 /* Get from and set in DB with claimed type and logging/warnings */
@@ -174,6 +175,21 @@ export async function removeFromTableGroupsHistory(classId: string, historyEntry
 		return old.filter((h) => h.createdAt !== historyEntry.createdAt)
 	})
 	return await getTableGroupsHistory(classId)
+}
+
+/* Manual Groups */
+export async function getManualGroups(classId: string) {
+	const key = `${manualGroupsKey}_${classId}`
+	return (
+		(await getStored<ManualGroups>(key)) ?? {
+			currentGroups: [],
+		}
+	)
+}
+
+export function setManualGroups(classId: string, manualGroups: ManualGroups) {
+	const key = `${manualGroupsKey}_${classId}`
+	setStored(key, manualGroups, 'tilfældige grupper')
 }
 
 /* Random Groups */
