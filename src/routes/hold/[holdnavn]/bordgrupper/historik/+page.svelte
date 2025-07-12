@@ -1,11 +1,11 @@
 <script lang="ts">
+	import CopyToExcelButton from '$lib/CopyToExcelButton.svelte'
 	import DisplayGroups from '$lib/DisplayGroups.svelte'
 	import { removeFromTableGroupsHistory } from '$lib/persistence.svelte'
 	import { toaster } from '$lib/toaster'
 	import { groupsFromIds } from '$lib/utils'
 	import { Modal } from '@skeletonlabs/skeleton-svelte'
-	import { Trash } from 'lucide-svelte'
-	import { fade } from 'svelte/transition'
+	import { slide } from 'svelte/transition'
 	import type { PageProps } from './$types'
 
 	let { data }: PageProps = $props()
@@ -68,7 +68,7 @@
 	}
 </script>
 
-<!------------------------------------------------------------------------------------------------>
+<!--========================================================================-->
 
 <svelte:head>
 	<title>Historik • Bordgrupper • {data.currentClass.name} • Dan grupper</title>
@@ -80,12 +80,20 @@
 {:else}
 	{#each history as h (h.createdAt)}
 		{@const dateString = getDate(h.createdAt)}
-		<div out:fade={{ duration: 500 }}>
-			<div class="flex items-center gap-2 pt-6">
+		{@const groups = groupsFromIds(h.groups, data.currentClass)}
+		<div out:slide={{ duration: 1000 }}>
+			<div class="flex items-center gap-2 pt-4">
 				<h4 class="h4">Grupper oprettet {dateString}</h4>
-				<button class="button" onclick={() => modalOpen(h)}><Trash size={22} /></button>
 			</div>
-			<DisplayGroups groups={groupsFromIds(h.groups, data.currentClass)} />
+			<DisplayGroups {groups} />
+			<CopyToExcelButton {groups} />
+			<button
+				class="mx-2 my-4 btn preset-outlined-primary-500"
+				title="Slet denne gruppeoprettelse fra historikken"
+				onclick={() => modalOpen(h)}
+			>
+				Slet fra historikken
+			</button>
 		</div>
 	{/each}
 {/if}

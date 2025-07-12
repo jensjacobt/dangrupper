@@ -67,7 +67,7 @@
 			}
 		} catch (error) {
 			console.error(error)
-			tableGroups.errorText = 'Ukendt fejl fejl under gruppedannelse. Kontakt udvikleren hvis det fortsætter.'
+			tableGroups.errorText = 'Uforventet fejl under gruppedannelse. Kontakt udvikleren hvis det fortsætter.'
 		}
 	}
 
@@ -90,7 +90,7 @@
 	}
 </script>
 
-<!------------------------------------------------------------------------------------------------>
+<!--========================================================================-->
 
 <svelte:head>
 	<title>Bordgrupper • {data.currentClass.name} • Dan grupper</title>
@@ -98,12 +98,11 @@
 
 <h3 class="h3">Bordgrupper</h3>
 <p>
-	Her kan du oprette bordgrupper (på højst 4 personer). Du kan indstille, at der ikke skal være for mange gengangere fra <a
-		class="underline"
-		href="historik/">historikken</a
-	> af tidligere grupper.
+	Her kan du oprette bordgrupper (på højst 4 personer). Du kan indstille, at der ikke skal være for mange gengangere fra
+	<a class="anchor" href="historik/">historikken</a>
+	af tidligere grupper.
 </p>
-<h4 class="h4">Indstillinger</h4>
+<h4 class="mb-2 h4">Indstillinger</h4>
 <p>
 	Den enkelte elev skal opleve højst
 	<input class="mx-2 input inline-block w-16" type="number" min="0" max="3" bind:value={tableGroups.maxRecurring} />
@@ -112,12 +111,12 @@
 	sidste grupper.
 </p>
 
-<h5 class="mt-6 mb-0 h5">Forudbestemte medlemmer</h5>
-<div class="flex flex-wrap gap-4">
+<h5 class="h5">Forudbestemte medlemmer</h5>
+<div class="flex flex-wrap gap-3">
 	{#each tableGroups.predefinedGroups as _, i}
 		<div class="w-40 card">
-			<header class="card-header pt-4 pb-2"><h6 class="h6">Gruppe {i + 1}</h6></header>
-			<section class="flex flex-col gap-3">
+			<header class="card-header pb-2"><h6 class="h6">Gruppe {i + 1}</h6></header>
+			<section class="single-selection flex flex-col gap-2">
 				{#each tableGroups.predefinedGroups[i] as _, j}
 					<Svelecte
 						{options}
@@ -132,28 +131,28 @@
 		</div>
 	{/each}
 </div>
-<button class="mr-3 btn preset-filled-primary-500" onclick={createGroups}> Dan grupper </button>
+<button class="mr-3 mb-4 btn preset-filled-primary-500" onclick={createGroups}> Dan grupper </button>
 <!-- TODO: Evt. "Er du sikker?" -->
 <button class="btn preset-outlined-primary-500" onclick={clearPredefinedGroups}> Ryd forudbestemte medlemmer </button>
 
-{#if displayGroups.length || tableGroups.errorText.length}
-	<h4 class="mt-6 mb-0 h4">Nye grupper</h4>
-	{#if tableGroups.errorText}
-		<div class="mt-4 card preset-filled-error-500 p-4">{tableGroups.errorText}</div>
-	{/if}
-	{#if tableGroups.warningText}
-		<div class="mt-4 card preset-filled-warning-500 p-4">{tableGroups.warningText}</div>
-	{/if}
+{#if tableGroups.errorText}
+	<div class="mt-4 card preset-tonal-error p-4">{tableGroups.errorText}</div>
 {/if}
-{#if !tableGroups.errorText.length && displayGroups.length}
+{#if displayGroups.length && !tableGroups.errorText.length}
+	<h4 class="h4">Nye grupper</h4>
+	{#if tableGroups.warningText}
+		<div class="mt-4 card preset-tonal-warning p-4">{tableGroups.warningText}</div>
+	{/if}
+
 	<DisplayGroups groups={displayGroups} />
+
 	{#if !tableGroups.saved}
 		<button class="btn preset-filled-primary-500" onclick={saveGroups}>Gem grupper</button>
 	{:else}
-		<button class="chip preset-tonal-success px-3 py-2 base-font-size">
+		<button class="inline-flex min-h-9 items-center gap-2 rounded-base preset-tonal-success px-4 py-1 base-line-height">
 			Grupper gemt <Check size={16} />
 		</button>
-		<h4 class="mt-6 h4">Eksportér grupper</h4>
+		<h4 class="h4">Eksportér grupper</h4>
 		<OutputTableHorizontal groups={displayGroups} />
 	{/if}
 {/if}

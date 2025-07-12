@@ -2,6 +2,8 @@
 	import { Download } from 'lucide-svelte'
 </script>
 
+<!--========================================================================-->
+
 <h2 class="h2">Vejledning</h2>
 <p>Fremgangsmåde:</p>
 <ol class="list-decimal ps-8">
@@ -17,3 +19,10 @@
 		øverst til højre på enhver side.
 	</li>
 </ol>
+
+<pre>
+Idéer:
+ - Liste med features på forsiden = salgstale (evt. links til demohold)
+ - Vis/skjul demohold
+ - 
+</pre>

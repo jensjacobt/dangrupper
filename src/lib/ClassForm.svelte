@@ -1,6 +1,6 @@
 <script lang="ts">
-	import type { Snippet } from 'svelte'
-	import { validateClassName, validity } from './validation.svelte'
+	import { tick, type Snippet } from 'svelte'
+	import { validateClassName, validateStudents, validity } from './validation.svelte'
 
 	let {
 		className = $bindable(),
@@ -34,6 +34,9 @@
 			const names = pastedText.split(/\r?\n/).map((n) => n.trim())
 			const newStudents = students.concat(names.map(newStudent))
 			students = newStudents.filter((s) => s.name != '')
+			tick().then(() => {
+				window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' })
+			})
 		}
 	}
 
@@ -77,22 +80,39 @@
 		}
 	}
 
-	const common = { class: 'input', type: 'text', onkeyup: onkeyup, autocomplete: 'off', spellcheck: 'false' }
+	const common = { class: 'input', type: 'text', onkeyup: onkeyup, spellcheck: false }
 </script>
+
+<!--========================================================================-->
 
 <form id="form" class="space-y-4" {onsubmit}>
 	<h4 class="h4">Holdnavn</h4>
-	<input placeholder="Holdnavn" bind:value={className} use:validity={validateClassName} {...common} />
+	<input
+		id="holdnavn"
+		placeholder="Holdnavn"
+		bind:value={className}
+		use:validity={validateClassName}
+		autocomplete="off"
+		{...common}
+	/>
 
 	<h4 class="h4">Elever</h4>
 	<p>
 		Tomme felter ignoreres og rækkefølgen er ligegyldig. Tilføj hurtigt flere elevnavne ved at indsætte kopieret tekst
 		med et navn pr. linje. Indsæt med command+v (på mac) eller ctrl+v (på pc).
 	</p>
-	{#each students as student, i (student.id)}
+	{#each students as s, i (s.id)}
 		<div class="flex items-center gap-2">
-			<span class="badge-icon">{i + 1 + '.'}</span>
-			<input placeholder="Navn" bind:value={student.name} {onpaste} {...common} />
+			<span class="btn w-12 preset-tonal hover:preset-tonal">{i + 1}.</span>
+			<input
+				id={`name-${s.id}`}
+				placeholder="Navn"
+				bind:value={s.name}
+				{onpaste}
+				use:validity={() => validateStudents(students)}
+				autocomplete="off"
+				{...common}
+			/>
 		</div>
 	{/each}
 	<!-- Disable enter to submit -->

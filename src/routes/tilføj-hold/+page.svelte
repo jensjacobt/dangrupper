@@ -3,7 +3,7 @@
 	import ClassForm from '$lib/ClassForm.svelte'
 	import { addClass, setClassBeingAdded } from '$lib/persistence.svelte'
 	import { toaster } from '$lib/toaster'
-	import { classNameToUrlName, getNextStudentId } from '$lib/utils'
+	import { classNameToUrlName, getNextStudentId, sortedByName } from '$lib/utils'
 	import type { PageProps } from './$types'
 
 	const { data }: PageProps = $props()
@@ -27,7 +27,7 @@
 	function addClassAndGoToClass(e: Event) {
 		e.preventDefault()
 		const name = $state.snapshot(className)
-		const studs = $state.snapshot(students).toSorted((a, b) => a.name.localeCompare(b.name))
+		const studs = sortedByName($state.snapshot(students))
 		addClass(name, studs)
 			.then(() => {
 				resetClassBeingAdded()
@@ -44,10 +44,16 @@
 	}
 </script>
 
-<h3 class="h3">Tilføj hold</h3>
+<!--========================================================================-->
+
+<svelte:head>
+	<title>Tilføj hold • Dan grupper</title>
+</svelte:head>
+
+<h2 class="h2">Tilføj hold</h2>
 <ClassForm onsubmit={addClassAndGoToClass} bind:className bind:students bind:id>
-	<button type="reset" class="ml-2 btn preset-outlined-primary-500" onclick={resetClassBeingAdded}
-		>Nulstil formular</button
-	>
+	<button type="reset" class="ml-2 btn preset-outlined-primary-500" onclick={resetClassBeingAdded}>
+		Nulstil formular
+	</button>
 </ClassForm>
 <div style="height: 30vh"></div>

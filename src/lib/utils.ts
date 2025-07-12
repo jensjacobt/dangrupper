@@ -42,3 +42,11 @@ export function idsFromGroups(groups: Student[][]) {
 	}
 	return groupIds
 }
+
+interface Namewise {
+	name: string
+}
+
+export function sortedByName<T extends Namewise>(a: T[]) {
+	return a.toSorted((a, b) => a.name.localeCompare(b.name))
+}

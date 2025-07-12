@@ -1,9 +1,11 @@
 <script lang="ts">
 	import { page } from '$app/state'
+	import CopyToExcelButton from '$lib/CopyToExcelButton.svelte'
 	import DisplayGroups from '$lib/DisplayGroups.svelte'
 	import { createRandomGroups } from '$lib/groupGenerator'
 	import { setRandomGroups } from '$lib/persistence.svelte'
 	import { groupsFromIds } from '$lib/utils'
+	import { Segment } from '@skeletonlabs/skeleton-svelte'
 	import Svelecte from 'svelecte'
 	import type { PageData } from './$types'
 
@@ -62,22 +64,8 @@
 			.join(', ')
 	}
 
-	function copyTextForExcel() {
-		const gs = Math.max(...displayGroups.map((g) => g.length))
-		const rows = []
-		for (let j = 0; j < gs; j++) {
-			const row = []
-			for (let i = 0; i < displayGroups.length; i++) {
-				row.push(displayGroups.at(i)?.at(j)?.name ?? ' ')
-			}
-			rows.push(row.join('\t'))
-		}
-		rows.push(`\nFraværende: ${absentString()}`)
-		const output = rows.join('\n')
-		navigator.clipboard
-			.writeText(output)
-			.then(() => console.log('succesfully copied text'))
-			.catch(() => console.log('not allowed to copy text'))
+	function addendum() {
+		return `\nFraværende: ${absentString()}`
 	}
 
 	const types: { text: string; value: string }[] = [
@@ -85,6 +73,8 @@
 		{ text: 'Gruppeantal:', value: 'groupNumber' },
 	]
 </script>
+
+<!--========================================================================-->
 
 <svelte:head>
 	<title>Tilfældige grupper • {data.currentClass.name} • Dan grupper</title>
@@ -99,22 +89,23 @@ i de dannede grupper. De fraværende elever skrives alle ind i det samme inputfe
 
 <form class="space-y-2">
 	<div class="flex">
-		<div>
-			{#each types as { text, value }}
-				<label class="flex items-center space-x-2">
-					<input class="radio" type="radio" checked name="radio-direct" {value} bind:group={randomGroups.type} />
-					<p>{text}</p>
-				</label>
-			{/each}
-		</div>
-		<input class="mx-2 input inline-block w-16" type="number" min="0" max="20" value={size} {onchange} />
+		<Segment
+			name="size"
+			value={randomGroups.type}
+			onValueChange={(e) => (randomGroups.type = (e.value ?? 'groupSize') as SizeType)}
+			padding="p-1.5"
+		>
+			<Segment.Item labelBase="text-sm" classes="px-4 py-1" value="groupSize">Gruppestørrelse</Segment.Item>
+			<Segment.Item labelBase="text-sm" classes="px-4 py-1" value="groupNumber">Gruppeantal</Segment.Item>
+		</Segment>
+		<input class="mx-2 input inline-block w-16" type="number" min="1" max="20" value={size} {onchange} />
 	</div>
 </form>
 
-<p><strong>Fraværende:</strong></p>
+<h5 class="h5">Fraværende</h5>
 
 {#key page.url.pathname}
-	<div class="flex">
+	<div class="mb-4">
 		<Svelecte
 			multiple
 			{options}
@@ -136,7 +127,7 @@ i de dannede grupper. De fraværende elever skrives alle ind i det samme inputfe
 
 	<p><strong>Fraværende:</strong> {absentString()}</p>
 
-	<button class="mr-2 btn preset-filled-primary-500" onclick={copyTextForExcel}>Kopiér til Excel</button>
+	<CopyToExcelButton groups={displayGroups} {addendum} />
 {/if}
 
 <div style="height: 60vh"></div>

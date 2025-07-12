@@ -11,7 +11,10 @@ export const load: LayoutLoad = async ({ params, route }) => {
 		redirect(307, `/hold/${params.holdnavn}/${activeGroupType}/`)
 	}
 
-	console.log(`-----------------------------------------------\nOpening ${currentClass.name}`)
+	console.log(
+		'-----------------------------------------------',
+		`\nGetting ${currentClass.name} and its active group type`,
+	)
 
 	return { currentClass }
 }

@@ -3,60 +3,101 @@
 
 @import '@skeletonlabs/skeleton';
 @import '@skeletonlabs/skeleton/optional/presets';
-@import '@skeletonlabs/skeleton/themes/rocket';
+@import './custom-hamlindigo.css';
+/* @import '@skeletonlabs/skeleton/themes/rocket'; */
+
 
 @source '../node_modules/@skeletonlabs/skeleton-svelte/dist';
 
 @custom-variant dark (&:where(.dark, .dark *));
 
-/* Svelecte */
-input.sv-input--text:focus { /* remove focus "border" */
-    box-shadow: none !important;
+/* General */
+html,
+body {
+	height: 100%;
 }
 
-.sv-btn-indicator:not(.sv-has-selection), .sv-btn-separator { /* remove down arrow */
-    display: none !important;
+:root {
+	/* --color-primary-contrast-500: oklch(0.25 0.03 213.73) */
+}
+
+/* Nav.Rail */
+[data-testid='nav-tile-label'],
+[data-testid='nav-tile-label-expanded'] {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	width: 100%;
+}
+[data-testid='nav-tile-label'] {
+	text-align: center;
+}
+[data-testid='nav-tile-label-expanded'] {
+	text-align: left;
+}
+
+/* Svelecte */
+/* remove focus "border" */
+input.sv-input--text:focus {
+	box-shadow: none !important;
+}
+/* remove down arrow */
+.sv-btn-indicator:not(.sv-has-selection),
+.sv-btn-separator {
+	display: none !important;
+}
+
+.single-selection .sv-control {
+	height: 36px;
+}
+
+:root {
+	/* Trying to match the Skeleton theme named Rocket */
+	--sv-min-height: 36px;
+	--sv-bg: transparent;
+	/* --sv-disabled-bg: #eee; */
+	--sv-border: 1px solid var(--color-surface-200);
+	--sv-border-radius: var(--radius-base);
+	--sv-general-padding: 4px;
+	--sv-control-bg: var(--sv-bg);
+	--sv-item-wrap-padding: 0 0 0 7px;
+	--sv-selection-wrap-padding: 0 0 0 7px;
+	--sv-selection-multi-wrap-padding: 0 3px 0 6px;
+	--sv-item-selected-bg: var(--color-surface-50);
+	--sv-item-btn-color: #000;
+	--sv-item-btn-color-hover: var(--color-surface-800);
+	--sv-item-btn-bg: var(--sv-item-selected-bg);
+	--sv-item-btn-bg-hover: var(--color-surface-100);
+	/* --sv-icon-color: #bbb;
+    --sv-icon-color-hover: #777;
+    --sv-icon-bg: red;
+    --sv-icon-size: 20px; 
+    --sv-separator-bg: #ccc;
+    --sv-btn-border: 0; */
+	--sv-placeholder-color: #ccccd6;
+	--sv-dropdown-bg: white;
+	--sv-dropdown-offset: 1px;
+	--sv-dropdown-border: var(--sv-border);
+	--sv-dropdown-width: auto;
+	--sv-dropdown-shadow: 0 6px 12px #0000002d;
+	--sv-dropdown-height: 260px;
+	--sv-dropdown-active-bg: var(--sv-item-btn-bg);
+	--sv-dropdown-selected-bg: var(--sv-item-btn-bg-hover);
+	/* --sv-create-kbd-border: 1px solid #efefef;
+    --sv-create-kbd-bg: #fff;
+    --sv-create-disabled-bg: #fcbaba;
+    --sv-loader-border: 2px solid #ccc; */
 }
 
 .dark {
-    --sv-min-height: 40px;
-    --sv-bg: #32363f;
-    --sv-disabled-bg: #eee;
-    --sv-border: 1px solid #626262;
-    --sv-border-radius: 4px;
-    --sv-general-padding: 4px;
-    --sv-control-bg: transparent;
-    --sv-item-wrap-padding: 3px 3px 3px 6px;
-    --sv-selection-wrap-padding: 3px 3px 3px 4px;
-    --sv-selection-multi-wrap-padding: 3px 3px 3px 6px;
-    --sv-item-selected-bg: #626262;
-    --sv-item-btn-color: #ccc;
-    --sv-item-btn-color-hover: #ccc;
-    --sv-item-btn-bg: #626262;
-    --sv-item-btn-bg-hover: #bc6063;
-    --sv-icon-color: #bbb;
-    --sv-icon-color-hover: #ccc;
-    --sv-icon-bg: transparent;
-    --sv-icon-size: 20px;
-    --sv-separator-bg: #626262;
-    --sv-btn-border: 0;
-    --sv-placeholder-color: #ccccd6;
-    --sv-dropdown-bg: var(--sv-bg);
-    --sv-dropdown-border: var(--sv-border);
-    --sv-dropdown-offset: 1px;
-    --sv-dropdown-width: auto;
-    --sv-dropdown-shadow: 0 1px 3px #555;
-    --sv-dropdown-height: 240px;
-    --sv-dropdown-active-bg: #553d3d;
-    --sv-dropdown-selected-bg: #754545;
-    --sv-create-kbd-border: 1px solid #626262;
-    --sv-create-kbd-bg: #626262;
-    --sv-create-disabled-bg: #fcbaba;
-    --sv-loader-border: 2px solid #626262;
-  }
-
-/* General */
-
-html,body {
-    height: 100%
+	--sv-border: 1px solid var(--color-surface-800);
+	--sv-item-selected-bg: var(--color-surface-800);
+	--sv-item-btn-color: white;
+	--sv-item-btn-color-hover: var(--color-surface-200);
+	--sv-item-btn-bg: var(--sv-item-selected-bg);
+	--sv-item-btn-bg-hover: var(--color-surface-600);
+	--sv-placeholder-color: #ccccd6;
+	--sv-dropdown-bg: var(--color-surface-900);
+	--sv-dropdown-border: var(--sv-border);
+	--sv-dropdown-shadow: 0 1px 3px #555;
+	--sv-dropdown-active-bg: var(--sv-item-btn-bg);
 }

@@ -5,6 +5,7 @@ import { urlNameToClassName } from './utils'
 import { validateClassName, validateStudents } from './validation.svelte'
 
 const classesKey = 'classes'
+const isMenuExpandedKey = 'is-menu-expanded'
 const classBeingAddedKey = 'class-being-added'
 const activeGroupTypeKey = 'active-group-type'
 const tableGroupsKey = 'table-groups'
@@ -122,6 +123,17 @@ export async function getClassBeingAdded() {
 export async function setClassBeingAdded(className: string, students: Student[]) {
 	const classBeingAdded = { name: className, students: students }
 	setStored<ClassBeingAdded>(classBeingAddedKey, classBeingAdded, 'data om klassen, der skal oprettes,')
+}
+
+/* Is Menu expanded */
+export async function getIsMenuExpanded() {
+	const key = `${isMenuExpandedKey}`
+	return (await getStored<boolean>(key)) ?? true
+}
+
+export async function setIsMenuExpanded(isMenuExpanded: boolean) {
+	const key = `${isMenuExpandedKey}`
+	setStored(key, isMenuExpanded, 'menuindstillinger')
 }
 
 /* Active Group Type */

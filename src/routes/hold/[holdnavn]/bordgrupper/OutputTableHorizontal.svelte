@@ -1,9 +1,12 @@
 <script lang="ts">
+	import CopyToExcelButton from '$lib/CopyToExcelButton.svelte'
+	import TextFadeTransition from '$lib/TextFadeTransition.svelte'
 	import { toaster } from '$lib/toaster'
 
 	const { groups }: { groups: Student[][] } = $props()
 
 	let canvas: HTMLCanvasElement
+	let textFade: TextFadeTransition
 
 	const colors = [
 		['#AAC8EB', '#5E95D8'],
@@ -83,6 +86,7 @@
 			.write([new ClipboardItem({ 'image/png': getImagePromise() })])
 			.then(function () {
 				console.log('copied image to clipboard')
+				textFade?.transition()
 			})
 			.catch(function (error) {
 				console.error(error)
@@ -92,28 +96,11 @@
 				})
 			})
 	}
-
-	function copyTextForExcel() {
-		const gs = 4
-		const rows = []
-		for (let j = 0; j < gs; j++) {
-			const row = []
-			for (let i = 0; i < groups.length; i++) {
-				row.push(groups.at(i)?.at(j)?.name ?? ' ')
-			}
-			rows.push(row.join('\t'))
-		}
-		const output = rows.join('\n')
-		navigator.clipboard
-			.writeText(output)
-			.then(() => console.log('succesfully copied text'))
-			.catch(() => console.log('not allowed to copy text'))
-	}
 </script>
 
-<canvas bind:this={canvas}> Din browser understøtter ikke canvas i HTML. Prøv en anden browser. </canvas>
+<canvas bind:this={canvas} class="mb-4"> Din browser understøtter ikke canvas i HTML. Prøv en anden browser. </canvas>
 
-<button id="copy-image-button" class="mr-2 btn preset-filled-primary-500" onclick={copyCanvasToClipboard}>
-	Kopier billede
+<button id="copy-image-button" class="mr-2 btn w-35 preset-filled-primary-500" onclick={copyCanvasToClipboard}>
+	<TextFadeTransition bind:this={textFade} text="Kopiér billede" temporaryText="Kopieret ✔︎" />
 </button>
-<button class="btn preset-outlined-primary-500" onclick={copyTextForExcel}> Kopier til Excel </button>
+<CopyToExcelButton minSize={4} {groups} classList={'btn w-35 preset-outlined-primary-500'} />

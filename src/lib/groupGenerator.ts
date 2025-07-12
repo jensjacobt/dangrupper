@@ -47,7 +47,10 @@ export function createTableGroups(
 		preassigned = preassigned.union(ss)
 	}
 	const assignableStudents = studentIds.filter((s) => !preassigned.has(s))
-	// TODO: Tjek at assignableStudents passer med antal null i tableGroups.predefinedGroups
+
+	if (assignableStudents.length + predefinedGroups.flat().filter((s) => s !== null).length !== students.length) {
+		throw Error('Antal elever der skulle placeres stemmer ikke med antal forudbestemte medlemmer.')
+	}
 
 	for (let j = 0; j < 250; j++) {
 		let rest = assignableStudents.slice(0)

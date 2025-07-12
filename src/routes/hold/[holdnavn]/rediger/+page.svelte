@@ -3,7 +3,7 @@
 	import ClassForm from '$lib/ClassForm.svelte'
 	import { editClass } from '$lib/persistence.svelte'
 	import { toaster } from '$lib/toaster'
-	import { classNameToUrlName, getNextStudentId } from '$lib/utils'
+	import { classNameToUrlName, getNextStudentId, sortedByName } from '$lib/utils'
 	import type { PageProps } from '../$types'
 
 	let { data }: PageProps = $props()
@@ -15,7 +15,7 @@
 	function editClassAndGoToClass(e: Event) {
 		e.preventDefault()
 		const name = $state.snapshot(className)
-		const studs = $state.snapshot(students).toSorted((a, b) => a.name.localeCompare(b.name))
+		const studs = sortedByName($state.snapshot(students))
 		const id = data.currentClass.id
 		editClass(id, name, studs)
 			.then(() => {
@@ -31,6 +31,12 @@
 			})
 	}
 </script>
+
+<!--========================================================================-->
+
+<svelte:head>
+	<title>Redigér hold • {data.currentClass.name} • Dan grupper</title>
+</svelte:head>
 
 <h3 class="h3">Redigér hold</h3>
 <ClassForm onsubmit={editClassAndGoToClass} bind:className bind:students {id} />

@@ -1,8 +1,9 @@
 <script lang="ts">
 	import { page } from '$app/state'
+	import CopyToExcelButton from '$lib/CopyToExcelButton.svelte'
 	import DisplayGroups from '$lib/DisplayGroups.svelte'
 	import { setManualGroups } from '$lib/persistence.svelte'
-	import { groupsFromIds, idsFromGroups } from '$lib/utils'
+	import { groupsFromIds, idsFromGroups, sortedByName } from '$lib/utils'
 	import Svelecte from 'svelecte'
 	import type { PageData } from './$types'
 
@@ -32,7 +33,7 @@
 	}
 
 	function sortGroups() {
-		reset(groups.map((g) => g.toSorted((a, b) => a.name.localeCompare(b.name))))
+		reset(groups.map((g) => sortedByName(g)))
 	}
 
 	function clearGroups() {
@@ -44,24 +45,9 @@
 		options = data.currentClass.students
 		triggerUpdateKey++
 	}
-
-	function copyTextForExcel() {
-		const gs = Math.max(...displayGroups.map((g) => g.length))
-		const rows = []
-		for (let j = 0; j < gs; j++) {
-			const row = []
-			for (let i = 0; i < displayGroups.length; i++) {
-				row.push(displayGroups.at(i)?.at(j)?.name ?? ' ')
-			}
-			rows.push(row.join('\t'))
-		}
-		const output = rows.join('\n')
-		navigator.clipboard
-			.writeText(output)
-			.then(() => console.log('succesfully copied text'))
-			.catch(() => console.log('not allowed to copy text'))
-	}
 </script>
+
+<!--========================================================================-->
 
 <svelte:head>
 	<title>Manuelle grupper • {data.currentClass.name} • Dan grupper</title>
@@ -69,9 +55,9 @@
 
 <h3 class="h3">Manuelle grupper</h3>
 
-Her kan du oprette grupper, hvor du manuelt vælger medlemmer.
+<p>Her kan du oprette grupper, hvor du manuelt vælger medlemmer.</p>
 
-<h4 class="mt-4 h4">Vælg medlemmer</h4>
+<h4 class="h4">Vælg medlemmer</h4>
 {#key page.url.pathname}
 	{#key triggerUpdateKey}
 		{#each { length: 1 + groups.length }, i}
@@ -98,14 +84,20 @@ Her kan du oprette grupper, hvor du manuelt vælger medlemmer.
 	{/if}
 </p>
 
-<button class="mr-3 btn preset-filled-primary-500" onclick={sortGroups}> Sortér grupper </button>
+<button
+	class="mr-3 btn preset-filled-primary-500"
+	onclick={sortGroups}
+	title="Sortér navnene i de enkelte grupper alfabetisk"
+>
+	Sortér grupper
+</button>
 <!-- TODO: Evt. "Er du sikker?" -->
 <button class="btn preset-outlined-primary-500" onclick={clearGroups}> Ryd alle grupper </button>
 
-<h4 class="mt-4 h4">Grupper</h4>
+<h4 class="h4">Grupper</h4>
 
 <DisplayGroups groups={displayGroups} />
 
-<button class="mr-2 btn preset-filled-primary-500" onclick={copyTextForExcel}>Kopiér til Excel</button>
+<CopyToExcelButton groups={displayGroups} />
 
 <div style="height: 60vh"></div>
