@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/state'
 	import { setIsMenuExpanded } from '$lib/persistence.svelte'
+	import { configureSvelecteGlobalOptions } from '$lib/svelecte-options.svelte'
 	import { toaster } from '$lib/toaster'
 	import { classNameToUrlName } from '$lib/utils'
 	import { Navigation, Toaster } from '@skeletonlabs/skeleton-svelte'
@@ -32,6 +33,8 @@
 			}
 		})
 	}
+
+	configureSvelecteGlobalOptions()
 </script>
 
 <!--========================================================================-->
