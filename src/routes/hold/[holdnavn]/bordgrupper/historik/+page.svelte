@@ -2,6 +2,7 @@
 	import CopyToExcelButton from '$lib/CopyToExcelButton.svelte'
 	import DisplayGroups from '$lib/DisplayGroups.svelte'
 	import { removeFromTableGroupsHistory } from '$lib/persistence.svelte'
+	import ReadMore from '$lib/ReadMore.svelte'
 	import { toaster } from '$lib/toaster'
 	import { groupsFromIds } from '$lib/utils'
 	import { Modal } from '@skeletonlabs/skeleton-svelte'
@@ -68,13 +69,27 @@
 	}
 </script>
 
-<!--========================================================================-->
+<!--================================================================================================================-->
 
 <svelte:head>
 	<title>Historik • Bordgrupper • {data.currentClass.name} • Dan grupper</title>
 </svelte:head>
 
 <h3 class="mt-6 h3">Historik for bordgrupper</h3>
+
+<ReadMore>
+	Her har du mulighed for at kopiere eller slette elementer fra historikken.
+	{#snippet expansion()}
+		<ul class="unordered-list">
+			<li>Knappen 'Kopiér til Excel' gør, hvad den plejer. Efter klik på denne kan du sætte ind i et regneark.</li>
+			<li>
+				Knappen 'Slet fra historik' sletter oprettelsen i historikken hørende til overskriften over knappen. Efter
+				sletning af en gruppeoprettelse vil den ikke længere tages i betragtning, når der dannes nye bordgrupper.
+			</li>
+		</ul>
+	{/snippet}
+</ReadMore>
+
 {#if history.length === 0}
 	<p>Der er ingen grupper i historikken endnu.</p>
 {:else}

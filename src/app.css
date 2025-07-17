@@ -6,7 +6,6 @@
 @import './custom-hamlindigo.css';
 /* @import '@skeletonlabs/skeleton/themes/rocket'; */
 
-
 @source '../node_modules/@skeletonlabs/skeleton-svelte/dist';
 
 @custom-variant dark (&:where(.dark, .dark *));
@@ -15,6 +14,23 @@
 html,
 body {
 	height: 100%;
+}
+
+.ordered-list {
+	@apply list-outside list-decimal space-y-2 ps-8 pb-4;	
+}
+
+.unordered-list {
+	@apply list-outside list-disc space-y-2 ps-8 pb-4;	
+}
+.unordered-list li ul, .unordered-list li ol {
+	@apply list-outside space-y-2 ps-8 pt-2;	
+}
+.unordered-list li ul li {
+	list-style-type: circle;
+}
+.unordered-list li ol li {
+	list-style-type: decimal;
 }
 
 :root {

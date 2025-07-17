@@ -37,7 +37,7 @@
 	configureSvelecteGlobalOptions()
 </script>
 
-<!--========================================================================-->
+<!--================================================================================================================-->
 
 <div class="grid h-screen grid-rows-[auto_1fr]">
 	<!-- Header -->
@@ -52,7 +52,7 @@
 			>
 				<School size={28} class="mb-1" />
 			</a>
-			<a href="/" class="btn text-lg hover:preset-tonal">Vejledning</a>
+			<a href="/vejledning/" class="btn text-lg hover:preset-tonal">Vejledning</a>
 			<a href="/tilføj-hold/" class="btn text-lg hover:preset-tonal">Tilføj hold</a>
 		</span>
 		<div class="flex flex-row gap-4">

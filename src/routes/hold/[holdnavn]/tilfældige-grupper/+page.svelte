@@ -4,6 +4,7 @@
 	import DisplayGroups from '$lib/DisplayGroups.svelte'
 	import { createRandomGroups } from '$lib/groupGenerator'
 	import { setRandomGroups } from '$lib/persistence.svelte'
+	import ReadMore from '$lib/ReadMore.svelte'
 	import { groupsFromIds } from '$lib/utils'
 	import { Segment } from '@skeletonlabs/skeleton-svelte'
 	import Svelecte from 'svelecte'
@@ -74,7 +75,7 @@
 	]
 </script>
 
-<!--========================================================================-->
+<!--================================================================================================================-->
 
 <svelte:head>
 	<title>Tilfældige grupper • {data.currentClass.name} • Dan grupper</title>
@@ -82,8 +83,31 @@
 
 <h3 class="h3">Tilfældige grupper</h3>
 
-Her kan du oprette tilfældige grupper. Indstil gruppestørrelse og angiv eventuelt fraværende elever, som ikke skal indgå
-i de dannede grupper. De fraværende elever skrives alle ind i det samme inputfelt.
+<ReadMore>
+	Her kan du oprette tilfældige grupper. Indstil gruppestørrelse/gruppeantal og angiv eventuelt fraværende elever, som
+	ikke skal indgå i de dannede grupper.
+	{#snippet expansion()}
+		<ul class="unordered-list">
+			<li>Klik på 'Gruppestørrelse' eller 'Gruppeantal' og vælg tallets størrelse.</li>
+			<li>
+				De fraværende elever skrives alle ind i det samme inputfelt.
+				<ul>
+					<li>
+						Du kan skrive for at søge dig frem til eleven og trykke returtast (enter) eller tabulatortast for at vælge
+						den markerede elev. Piletasterne kan bruges til at flytte markeringen op og ned på listen.
+					</li>
+					<li>Du kan også scrolle og klikke på en elev for at tilføje eleven til gruppen.</li>
+				</ul>
+			</li>
+			<li>Knappen 'Dan grupper' danner tilfældige grupper. Klik igen for nye grupper.</li>
+			<li>
+				De aktuelle grupper gemmes automatisk i browseren. (Tag backup, hvis du vil sikre at have dem, da browseren kan
+				slette dem ved pladsmangel.)
+			</li>
+		</ul>
+		Der er ingen historik over tidligere grupper.
+	{/snippet}
+</ReadMore>
 
 <h4 class="mt-4 h4">Indstillinger</h4>
 

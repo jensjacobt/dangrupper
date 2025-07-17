@@ -2,9 +2,10 @@
 	import DisplayGroups from '$lib/DisplayGroups.svelte'
 	import { createTableGroups } from '$lib/groupGenerator'
 	import { addToTableGroupsHistory, setTableGroups } from '$lib/persistence.svelte'
+	import ReadMore from '$lib/ReadMore.svelte'
 	import { toaster } from '$lib/toaster'
 	import { groupsFromIds } from '$lib/utils'
-	import { Check } from 'lucide-svelte'
+	import { Check, Download } from 'lucide-svelte'
 	import Svelecte from 'svelecte'
 	import type { PageProps } from './$types'
 	import OutputTableHorizontal from './OutputTableHorizontal.svelte'
@@ -90,18 +91,57 @@
 	}
 </script>
 
-<!--========================================================================-->
+<!--================================================================================================================-->
 
 <svelte:head>
 	<title>Bordgrupper • {data.currentClass.name} • Dan grupper</title>
 </svelte:head>
 
 <h3 class="h3">Bordgrupper</h3>
-<p>
+
+<ReadMore>
 	Her kan du oprette bordgrupper (på højst 4 personer). Du kan indstille, at der ikke skal være for mange gengangere fra
-	<a class="anchor" href="historik/">historikken</a>
-	af tidligere grupper.
-</p>
+	<a class="anchor" href="historik/">historikken</a> af tidligere grupper – og evt. vælge nogle forudbestemte medlemmer
+	til nogle af grupperne.
+	{#snippet expansion()}
+		<ol class="ordered-list space-y-2">
+			<li>
+				Vælg det maksimale antal gengangere, og hvor mange grupper, der skal kigges tilbage i historikken, når der
+				kigges på gengangere.
+				<br /> Bemærk: hvis du sætter antal gengangere lavt (fx til 0), men sætter hvor langt der kigges tilbage højt (fx
+				4 eller 5), så bliver kravene så restriktive, at der måske ikke kan dannes grupper (og der vises en fejlbjælke).
+				Erfaringen viser, at 0 gengangere fra de sidste 3 grupper fungerer fint. Eksperimentér selv.
+			</li>
+			<li>
+				Vælg eventuelt forudbestemte medlemmer.
+				<br /> Under indstillinger ses antal grupper og antal medlemmer i hver gruppe – vist med inputfelter. Hvis der er
+				nogle elever, som du gerne vil have i en bestemt gruppe (som makkerpar eller blot i samme 4-mandsgruppe).
+			</li>
+			<li>
+				Klik på 'Dan grupper'. Klik igen for nye grupper.
+				<br /> De forudbestemte medlemmer placeres præcist, som du placerede dem under indstillinger. Hvis forudbestemte
+				medlemmer har været i gruppe sammen for nyligt, så kommer der en advarselsbjælke, men grupperne dannes alligevel.
+			</li>
+			<li>
+				Klik på 'Gem grupper', når du er tilfreds med grupperne. Så gemmes de i historikken.
+				<br /> Du kan se <a class="anchor" href="historik/">historikken</a> vha. linket ovenfor. Der kan du også slette et
+				sæt af grupper fra historikken, hvis du skulle fortryde gruppeoprettelser.
+			</li>
+			<li>
+				Under 'Eksportér grupper' har du nu to muligheder. Kopiér det viste billede, eller kopiér tekst som er klar til
+				at blive indsat i celler i Excel (eller et andet regneark).
+			</li>
+			<li>
+				Tag endelig en backup, da din browser kan vælge at slette app'ens database. Download en backup-fil vha. knappen
+				<Download class="inline" size={20} /> øverst til højre på enhver side.
+			</li>
+		</ol>
+		Næste gang du laver bordgrupper, vil du nok rydde de forudbestemte medlemmer vha. knappen til det.
+		<mark class="mark">Tip:</mark> Du kan bruge funktionen med forudbestemte medlemmer, hvis du vil oprette manuelle bordgrupper,
+		som kommer i historikken, og hvor du undgår fejl med at skrive samme navn flere gange eller slet ikke.
+	{/snippet}
+</ReadMore>
+
 <h4 class="mb-2 h4">Indstillinger</h4>
 <p>
 	Den enkelte elev skal opleve højst
@@ -114,7 +154,7 @@
 <h5 class="h5">Forudbestemte medlemmer</h5>
 <div class="flex flex-wrap gap-3">
 	{#each tableGroups.predefinedGroups as _, i}
-		<div class="w-40 card">
+		<div class="w-36 card">
 			<header class="card-header pb-2"><h6 class="h6">Gruppe {i + 1}</h6></header>
 			<section class="single-selection flex flex-col gap-2">
 				{#each tableGroups.predefinedGroups[i] as _, j}

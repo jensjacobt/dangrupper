@@ -1,3 +1,4 @@
+import { invalidateAll } from '$app/navigation'
 import { error } from '@sveltejs/kit'
 import { delMany, entries, get, keys, set, setMany, update } from 'idb-keyval'
 import { toaster } from './toaster'
@@ -73,8 +74,8 @@ export async function addClass(className: string, students: Student[]): Promise<
 export async function editClass(id: string, className: string, students: Student[]): Promise<void> {
 	;[className, students] = trimAndValidateClass(className, students)
 
-	const classes = (await get(classesKey)) as Class[] | undefined
-	if (Array.isArray(classes) && !classes.some((c) => c.id)) {
+	const classes = ((await get(classesKey)) ?? []) as Class[]
+	if (!classes.some((c) => c.id === id)) {
 		throw Error('Holdet findes ikke i databasen.')
 	}
 
@@ -123,6 +124,31 @@ export async function getClassBeingAdded() {
 export async function setClassBeingAdded(className: string, students: Student[]) {
 	const classBeingAdded = { name: className, students: students }
 	setStored<ClassBeingAdded>(classBeingAddedKey, classBeingAdded, 'data om klassen, der skal oprettes,')
+}
+
+/* Demo */
+const demoId = 'demo_4eea5857-9af5-4307-8353-aff36e8911c9'
+
+export function resetDemoClass() {
+	resetDemo().then(() => {
+		invalidateAll()
+	})
+}
+
+async function resetDemo() {
+	await update(classesKey, (classes: Class[] | undefined) => {
+		const newClasses = classes ?? []
+
+		const demoClass = { id: demoId, name: 'Demo', students: demoStudents }
+
+		const index = newClasses.findIndex((c) => c.id === demoId)
+		if (index >= 0) {
+			newClasses[index] = demoClass
+		} else {
+			newClasses.push(demoClass)
+		}
+		return newClasses
+	})
 }
 
 /* Is Menu expanded */
@@ -320,3 +346,35 @@ export async function importClasses(importObject: ImportObject, idsToImport: str
 
 	await setMany(keyvals)
 }
+
+const demoStudents = [
+	{ id: 25, name: 'Amélie Poulain' },
+	{ id: 2, name: 'Axel Foley' },
+	{ id: 3, name: 'Bilbo Baggins' },
+	{ id: 16, name: 'Daenerys Targaryen' },
+	{ id: 4, name: 'Don Quixote' },
+	{ id: 5, name: 'Dorothy Gale' },
+	{ id: 6, name: 'Ebenezer Scrooge' },
+	{ id: 8, name: 'Elizabeth Bennet' },
+	{ id: 7, name: 'Ellen Ripley' },
+	{ id: 9, name: 'Gandalf' },
+	{ id: 11, name: 'Hamlet' },
+	{ id: 10, name: 'Han Solo' },
+	{ id: 12, name: 'Heinrich Faust' },
+	{ id: 13, name: 'Indiana Jones' },
+	{ id: 14, name: 'John McClane' },
+	{ id: 15, name: 'Katniss Everdeen' },
+	{ id: 17, name: 'Marty McFly' },
+	{ id: 18, name: 'Mary Poppins' },
+	{ id: 20, name: 'Molly Weasley' },
+	{ id: 19, name: 'Odysseus' },
+	{ id: 21, name: 'Peter Pan' },
+	{ id: 22, name: 'Pikachu' },
+	{ id: 23, name: 'Pinocchio' },
+	{ id: 24, name: 'Robin Hood' },
+	{ id: 26, name: 'Spock' },
+	{ id: 27, name: 'Tony Stark' },
+	{ id: 28, name: 'Vito Corleone' },
+	{ id: 29, name: 'Winnie-the-Pooh' },
+	{ id: 30, name: 'Yoda' },
+]

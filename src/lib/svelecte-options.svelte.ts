@@ -3,7 +3,6 @@ import { config } from 'svelecte'
 export function configureSvelecteGlobalOptions() {
 	config.placeholder = ''
 	config.clearable = true
-	config.selectOnTab = true
 
 	config.i18n.empty = 'Ingen valgmuligheder'
 	config.i18n.nomatch = 'Ingen valgmuligheder matcher'

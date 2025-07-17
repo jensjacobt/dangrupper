@@ -39,7 +39,7 @@
 	}
 </script>
 
-<!--========================================================================-->
+<!--================================================================================================================-->
 
 <button class={classList} onclick={copyTextForExcel}>
 	<TextFadeTransition bind:this={textFade} text="Kopiér til Excel" temporaryText="Kopieret ✔︎" />

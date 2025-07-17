@@ -2,6 +2,7 @@
 	import { goto } from '$app/navigation'
 	import ClassForm from '$lib/ClassForm.svelte'
 	import { editClass } from '$lib/persistence.svelte'
+	import ReadMore from '$lib/ReadMore.svelte'
 	import { toaster } from '$lib/toaster'
 	import { classNameToUrlName, getNextStudentId, sortedByName } from '$lib/utils'
 	import type { PageProps } from '../$types'
@@ -32,12 +33,33 @@
 	}
 </script>
 
-<!--========================================================================-->
+<!--================================================================================================================-->
 
 <svelte:head>
 	<title>Redigér hold • {data.currentClass.name} • Dan grupper</title>
 </svelte:head>
 
-<h3 class="h3">Redigér hold</h3>
-<ClassForm onsubmit={editClassAndGoToClass} bind:className bind:students {id} />
+<div class="mx-auto max-w-180">
+	<h3 class="h3">Redigér hold</h3>
+
+	<ReadMore>
+		Redigér holdnavn og elevnavne. Tilføj først evt. elever ved at skrive ind i et blankt felt nederst (<mark
+			class="mark">OBS:</mark
+		>
+		det er vigtigt at nye elever tilføjes nederst). Fjern derefter en elev ved at rydde inputfeltet med elevens navn.
+		{#snippet expansion()}
+			<ul class="unordered-list">
+				<li>Holdnavnet må kun indeholde tegnene a-å, A-Å, 0-9 samt bindestreg (-) og mellemrum ( ).</li>
+				<li>Det er smart at bruge korte navne frem for fulde navne, da det vises bedre på siden.</li>
+				<li>Listen med elevnavne får automatisk flere inputfelter, når alle felter er udfyldt.</li>
+				<li>Tomme felter ignoreres og rækkefølgen af elevnavne er ligegyldig.</li>
+				<li>Du kan navigere mellem felter med piletasterne, returtasten eller musen.</li>
+				<li>Klik på 'Gem hold' gemmer ændringerne.</li>
+			</ul>
+		{/snippet}
+	</ReadMore>
+
+	<ClassForm onsubmit={editClassAndGoToClass} bind:className bind:students {id} />
+</div>
+
 <div style="height: 30vh"></div>
