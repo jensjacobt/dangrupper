@@ -159,7 +159,7 @@ async function resetDemo() {
 /* Is Menu expanded */
 export async function getIsMenuExpanded() {
 	const key = `${isMenuExpandedKey}`
-	return (await getStored<boolean>(key)) ?? true
+	return (await getStored<boolean>(key)) ?? false
 }
 
 export async function setIsMenuExpanded(isMenuExpanded: boolean) {
