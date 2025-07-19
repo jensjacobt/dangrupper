@@ -55,15 +55,20 @@ export async function getCurrentClass(holdnavn: string) {
 export async function addClass(className: string, students: Student[]): Promise<void> {
 	;[className, students] = trimAndValidateClass(className, students)
 
-	const classes = await get(classesKey)
-	if (Array.isArray(classes) && classes.some((c) => c.name == className)) {
+	const classes = ((await get(classesKey)) ?? []) as Class[]
+	if (classes.some((c) => c.name == className)) {
 		throw Error('Holdnavn allerede i brug – skriv et andet.')
 	}
+
+	let id: string
+	do {
+		id = crypto.randomUUID()
+	} while (classes.some((c) => c.id === id))
 
 	await update(classesKey, (classes: Class[] | undefined) => {
 		return (classes ?? []).concat([
 			{
-				id: crypto.randomUUID(),
+				id: id,
 				name: className,
 				students: students,
 			},
