@@ -43,7 +43,7 @@
 	</script>
 </svelte:head>
 
-<span title="Skift mellem lyst og mørkt udseende">
+<span class="mr-4" title="Skift mellem lyst og mørkt udseende">
 	<Segment name="align" value={mode} {onValueChange} padding="p-1" rounded="rounded-[10px]">
 		<Segment.Item value="system" base="btn cursor-pointer z-[1] px-1.75">
 			<Monitor size={18} />
