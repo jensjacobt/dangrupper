@@ -39,7 +39,7 @@
 	<title>Redigér hold • {data.currentClass.name} • Dan grupper</title>
 </svelte:head>
 
-<div class="mx-auto max-w-180">
+<div class="mx-auto max-w-180 space-y-4">
 	<h3 class="h3">Redigér hold</h3>
 
 	<ReadMore>

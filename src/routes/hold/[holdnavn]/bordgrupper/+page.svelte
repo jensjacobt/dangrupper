@@ -189,7 +189,9 @@
 	{#if !tableGroups.saved}
 		<button class="btn preset-filled-primary-500" onclick={saveGroups}>Gem grupper</button>
 	{:else}
-		<button class="inline-flex min-h-9 items-center gap-2 rounded-base preset-tonal-success px-4 py-1 base-line-height">
+		<button
+			class="inline-flex min-h-9 cursor-default items-center gap-2 rounded-base preset-tonal-success px-4 py-1 base-line-height"
+		>
 			Grupper gemt <Check size={16} />
 		</button>
 		<h4 class="h4">Eksportér grupper</h4>

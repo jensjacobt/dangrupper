@@ -51,7 +51,7 @@
 	<title>Tilføj hold • Dan grupper</title>
 </svelte:head>
 
-<div class="mx-auto max-w-180">
+<div class="mx-auto max-w-180 space-y-4">
 	<h2 class="h2">Tilføj hold</h2>
 
 	<ReadMore>

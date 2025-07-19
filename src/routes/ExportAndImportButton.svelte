@@ -72,11 +72,11 @@
 
 <!--================================================================================================================-->
 
-<button class="btn hover:preset-tonal" title="Download fuld backup" onclick={exportWholeDatabase}>
+<button class="btn py-2 hover:preset-tonal" title="Download fuld backup" onclick={exportWholeDatabase}>
 	<Download size={28} />
 </button>
 
-<button class="btn gap-0 hover:preset-tonal" title="Importér fra tidligere backup" onclick={onImportButtonClick}>
+<button class="btn gap-0 py-2 hover:preset-tonal" title="Importér fra tidligere backup" onclick={onImportButtonClick}>
 	<Upload size={28} />
 
 	<!-- NOTE: Don't use `hidden` as it prevents `required` from operating -->

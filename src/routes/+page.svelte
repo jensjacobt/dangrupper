@@ -12,7 +12,9 @@
 <div class="mx-auto w-200 space-y-4">
 	<div class="flex pt-10 pb-15">
 		<div class="w-50">
-			<span class="mr-10 flex h-40 w-40 items-center justify-center rounded-full bg-surface-950-50 text-surface-50-950">
+			<span
+				class="mt-4 mr-10 flex h-40 w-40 items-center justify-center rounded-full bg-surface-950-50 text-surface-50-950"
+			>
 				<School size={110} class="mb-3" />
 			</span>
 		</div>
@@ -42,7 +44,7 @@
 				</p>
 			</article>
 		</div>
-		<div class="w-98 grow card preset-outlined-success-200-800 bg-success-50-950 p-8">
+		<div class="w-98 grow card preset-outlined-tertiary-200-800 bg-tertiary-50-950 p-8">
 			<header><Grid2x2 size={24} /></header>
 			<article>
 				<h4 class="h4">Dan bordgrupper</h4>
@@ -52,7 +54,7 @@
 				</p>
 			</article>
 		</div>
-		<div class="w-98 grow card preset-outlined-surface-200-800 bg-surface-50-950 p-8">
+		<div class="w-98 grow card preset-outlined-tertiary-200-800 bg-tertiary-50-950 p-8">
 			<header><Shuffle size={24} /></header>
 			<article>
 				<h4 class="h4">Dan tilfældige grupper</h4>
@@ -61,7 +63,7 @@
 				</p>
 			</article>
 		</div>
-		<div class="w-98 grow card preset-outlined-warning-200-800 bg-warning-50-950 p-8">
+		<div class="w-98 grow card preset-outlined-tertiary-200-800 bg-tertiary-50-950 p-8">
 			<header><Hand size={24} /></header>
 			<article>
 				<h4 class="h4">Dan manuelle grupper</h4>
@@ -70,13 +72,13 @@
 				</p>
 			</article>
 		</div>
-		<div class="w-98 grow card preset-outlined-error-200-800 bg-error-50-950 p-8">
+		<div class="w-98 grow card preset-outlined-warning-200-800 bg-warning-50-950 p-8">
 			<header><Download size={24} /></header>
 			<article>
 				<h4 class="h4">Tag backup</h4>
 				<p class="opacity-70">
 					Din browser kan desværre vælge at slette det gemte fra sit lager. Tag derfor backup efter du har oprettet et
-					hold eller gemt bordgrupper. Backup'en downloades som en fil med dato og tidspunkt.
+					hold eller gemt bordgrupper. Backup'en downloades som en fil med dato og tidspunkt i filnavnet.
 				</p>
 			</article>
 		</div>

@@ -101,6 +101,6 @@
 <canvas bind:this={canvas} class="mb-4"> Din browser understøtter ikke canvas i HTML. Prøv en anden browser. </canvas>
 
 <button id="copy-image-button" class="mr-2 btn w-35 preset-filled-primary-500" onclick={copyCanvasToClipboard}>
-	<TextFadeTransition bind:this={textFade} text="Kopiér billede" temporaryText="Kopieret ✔︎" />
+	<TextFadeTransition bind:this={textFade} text="Kopiér billede" temporaryText="Kopieret" />
 </button>
 <CopyToExcelButton minSize={4} {groups} classList={'btn w-35 preset-outlined-primary-500'} />
