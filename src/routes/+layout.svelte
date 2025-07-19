@@ -4,11 +4,12 @@
 	import { configureSvelecteGlobalOptions } from '$lib/svelecte-options.svelte'
 	import { toaster } from '$lib/toaster'
 	import { classNameToUrlName } from '$lib/utils'
-	import { Menu, School, Sun, UsersRound } from '@lucide/svelte'
+	import { Menu, School, UsersRound } from '@lucide/svelte'
 	import { Navigation, Toaster } from '@skeletonlabs/skeleton-svelte'
 	import '../app.css'
 	import type { LayoutProps } from './$types'
 	import ExportAndImportButton from './ExportAndImportButton.svelte'
+	import LightSwitch from './LightSwitch.svelte'
 
 	let { children, data }: LayoutProps = $props()
 
@@ -18,10 +19,6 @@
 	})
 	function toggleExpanded() {
 		expanded = !expanded
-	}
-
-	function pushSwitch() {
-		document.documentElement.classList.toggle('dark')
 	}
 
 	if (data.classes.length > 0 && navigator.storage && navigator.storage.persist) {
@@ -55,15 +52,8 @@
 			<a href="/vejledning/" class="btn text-lg hover:preset-tonal">Vejledning</a>
 			<a href="/tilføj-hold/" class="btn text-lg hover:preset-tonal">Tilføj hold</a>
 		</span>
-		<div class="flex flex-row gap-4">
-			<button
-				id="lightswitch"
-				onclick={pushSwitch}
-				class="btn aspect-square hover:preset-tonal"
-				title="Skift mellem lyst og mørkt udseende"
-			>
-				<Sun size={28} />
-			</button>
+		<div class="flex items-center gap-4">
+			<LightSwitch />
 			<ExportAndImportButton />
 		</div>
 	</header>
