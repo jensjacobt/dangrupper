@@ -2,8 +2,8 @@
 	import { invalidateAll } from '$app/navigation'
 	import { downloadJson, exportDatabaseToJson, getConflictingClasses, importClasses } from '$lib/persistence.svelte'
 	import { toaster } from '$lib/toaster'
+	import { Download, Upload } from '@lucide/svelte'
 	import { Modal } from '@skeletonlabs/skeleton-svelte'
-	import { Download, Upload } from 'lucide-svelte'
 
 	let fileInput: HTMLInputElement
 

@@ -5,7 +5,7 @@
 	import ReadMore from '$lib/ReadMore.svelte'
 	import { toaster } from '$lib/toaster'
 	import { groupsFromIds } from '$lib/utils'
-	import { Check, Download } from 'lucide-svelte'
+	import { Check, Download } from '@lucide/svelte'
 	import Svelecte from 'svelecte'
 	import type { PageProps } from './$types'
 	import OutputTableHorizontal from './OutputTableHorizontal.svelte'

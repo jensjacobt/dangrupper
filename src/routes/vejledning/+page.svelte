@@ -1,6 +1,6 @@
 <script>
 	import { resetDemoClass } from '$lib/persistence.svelte'
-	import { Download, Upload } from 'lucide-svelte'
+	import { Download, Upload } from '@lucide/svelte'
 </script>
 
 <!--================================================================================================================-->

@@ -4,8 +4,8 @@
 	import { configureSvelecteGlobalOptions } from '$lib/svelecte-options.svelte'
 	import { toaster } from '$lib/toaster'
 	import { classNameToUrlName } from '$lib/utils'
+	import { Menu, School, Sun, UsersRound } from '@lucide/svelte'
 	import { Navigation, Toaster } from '@skeletonlabs/skeleton-svelte'
-	import { Menu, School, SunMoon, UsersRound } from 'lucide-svelte'
 	import '../app.css'
 	import type { LayoutProps } from './$types'
 	import ExportAndImportButton from './ExportAndImportButton.svelte'
@@ -62,7 +62,7 @@
 				class="btn aspect-square hover:preset-tonal"
 				title="Skift mellem lyst og mørkt udseende"
 			>
-				<SunMoon size={28} />
+				<Sun size={28} />
 			</button>
 			<ExportAndImportButton />
 		</div>

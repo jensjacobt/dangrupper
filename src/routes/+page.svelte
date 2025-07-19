@@ -1,6 +1,6 @@
 <script>
 	import { resetDemoClass } from '$lib/persistence.svelte'
-	import { ChevronRight, Download, Grid2x2, Hand, Save, School, Shuffle } from 'lucide-svelte'
+	import { ChevronRight, Download, Grid2x2, Hand, Save, School, Shuffle } from '@lucide/svelte'
 </script>
 
 <!--================================================================================================================-->
