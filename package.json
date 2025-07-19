@@ -1,15 +1,17 @@
 {
 	"name": "dangrupper",
-	"version": "0.0.1",
+	"version": "0.5.0",
 	"type": "module",
 	"scripts": {
 		"dev": "vite dev --port 5173 --open",
 		"build": "vite build",
+		"deploy": "git push origin main:deployments",
 		"preview": "vite preview --port 5173 --open",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
 		"format": "prettier --write .",
 		"lint": "prettier --check . && eslint .",
+		"stage": "git push origin main:staging",
 		"test:unit": "vitest",
 		"test": "npm run test:unit -- --run"
 	},
