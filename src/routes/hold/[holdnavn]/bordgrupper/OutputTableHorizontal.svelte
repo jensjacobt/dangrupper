@@ -5,6 +5,8 @@
 
 	const { groups }: { groups: Student[][] } = $props()
 
+	const groupsConform = $derived(groups.length <= 8 && groups.every((g) => g.length <= 4))
+
 	let canvas: HTMLCanvasElement
 	let textFade: TextFadeTransition
 
@@ -20,6 +22,7 @@
 	]
 
 	$effect(() => {
+		if (!groupsConform) return
 		const w = 100
 		const h = 28
 		const p = 5
@@ -98,9 +101,12 @@
 	}
 </script>
 
-<canvas bind:this={canvas} class="mb-4"> Din browser understøtter ikke canvas i HTML. Prøv en anden browser. </canvas>
+{#if groupsConform}
+	<canvas bind:this={canvas} class="mb-4"> Din browser understøtter ikke canvas i HTML. Prøv en anden browser.</canvas>
 
-<button id="copy-image-button" class="mr-2 btn w-35 preset-filled-primary-500" onclick={copyCanvasToClipboard}>
-	<TextFadeTransition bind:this={textFade} text="Kopiér billede" temporaryText="Kopieret" />
-</button>
+	<button id="copy-image-button" class="mr-2 btn w-35 preset-filled-primary-500" onclick={copyCanvasToClipboard}>
+		<TextFadeTransition bind:this={textFade} text="Kopiér billede" temporaryText="Kopieret" />
+	</button>
+{/if}
+
 <CopyToExcelButton minSize={4} {groups} classList={'btn w-35 preset-outlined-primary-500'} />

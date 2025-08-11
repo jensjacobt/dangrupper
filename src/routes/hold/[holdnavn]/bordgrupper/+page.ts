@@ -1,4 +1,4 @@
-import { getEmptyPredefinedGroups } from '$lib/groupGenerator'
+import { getEmptyPredefinedGroups, getTableGroupSizes } from '$lib/groupGenerator'
 import { getTableGroups, getTableGroupsHistory } from '$lib/persistence.svelte'
 import { error } from '@sveltejs/kit'
 import type { PageLoad } from './$types'
@@ -19,6 +19,11 @@ export const load: PageLoad = async ({ parent }) => {
 		) {
 			console.log('(Re)setting predefined groups')
 			initialTableGroups.predefinedGroups = getEmptyPredefinedGroups(numStudents)
+		}
+
+		if (initialTableGroups.manualGroupSizes.length == 0) {
+			console.log('(Re)setting manual group sizes')
+			initialTableGroups.manualGroupSizes = getTableGroupSizes(numStudents)
 		}
 
 		return {

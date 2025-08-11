@@ -1,11 +1,12 @@
 <script lang="ts">
 	import DisplayGroups from '$lib/DisplayGroups.svelte'
-	import { createTableGroups } from '$lib/groupGenerator'
+	import { createTableGroups, getEmptyPredefinedGroups, getTableGroupSizes } from '$lib/groupGenerator'
 	import { addToTableGroupsHistory, setTableGroups } from '$lib/persistence.svelte'
 	import ReadMore from '$lib/ReadMore.svelte'
 	import { toaster } from '$lib/toaster'
 	import { groupsFromIds } from '$lib/utils'
 	import { Check, Download } from '@lucide/svelte'
+	import { Switch } from '@skeletonlabs/skeleton-svelte'
 	import Svelecte from 'svelecte'
 	import type { PageProps } from './$types'
 	import OutputTableHorizontal from './OutputTableHorizontal.svelte'
@@ -14,15 +15,24 @@
 
 	let tableGroups = $state() as TableGroups
 	let options = $state() as Student[]
+
 	const displayGroups = $derived(
 		tableGroups.currentGroups ? groupsFromIds(tableGroups.currentGroups, data.currentClass) : [],
 	)
+	const manualGroupsDifference = $derived.by(() => {
+		if (!tableGroups) return 0
+
+		return tableGroups.manualGroupSizes.reduce((acc, val) => acc + val, 0) - data.currentClass.students.length
+	})
+	let initialManualGroupSizesString = $state() as string
 
 	$effect.pre(() => {
 		// needed for navigation between classes
 		console.log('Reading in loaded data')
 		tableGroups = data.initialTableGroups
 		options = data.currentClass.students // needed trick for Svelecte
+
+		initialManualGroupSizesString = data.initialTableGroups.manualGroupSizes.join(', ')
 	})
 
 	$effect(() => {
@@ -35,6 +45,68 @@
 		console.log('Storing table groups in DB')
 		setTableGroups(data.currentClass.id, $state.snapshot(tableGroups))
 	})
+
+	function reset() {
+		tableGroups.saved = false
+		tableGroups.currentGroups = []
+	}
+
+	function setPredefinedGroupsFromManualGroupSizes() {
+		tableGroups.predefinedGroups = tableGroups.manualGroupSizes.map((gs) => Array(gs).fill(null))
+	}
+
+	function advancedToggled(checked: boolean) {
+		tableGroups.advanced = checked
+		if (checked) {
+			initialManualGroupSizesString = tableGroups.manualGroupSizes.join(', ')
+			if (
+				manualGroupsDifference == 0
+				&& !arraysEqual(
+					tableGroups.manualGroupSizes,
+					tableGroups.predefinedGroups.map((g) => g.length),
+				)
+			) {
+				setPredefinedGroupsFromManualGroupSizes()
+			}
+		}
+
+		const numStudents = data.currentClass.students.length
+		if (!checked && !arraysEqual(tableGroups.manualGroupSizes, getTableGroupSizes(numStudents))) {
+			tableGroups.predefinedGroups = getEmptyPredefinedGroups(numStudents)
+		}
+		reset()
+	}
+
+	function arraysEqual(a1: number[], a2: number[]) {
+		return (
+			a1.length === a2.length
+			&& a1.every(function (value, index) {
+				return value === a2[index]
+			})
+		)
+	}
+
+	function updateManualGroupSizes(input: string) {
+		const parts = input.split(',')
+		const groupSizes = []
+		for (const p of parts) {
+			const num = parseInt(p, 10)
+			if (!isNaN(num)) {
+				groupSizes.push(num)
+			}
+		}
+		if (!arraysEqual(tableGroups.manualGroupSizes, groupSizes)) {
+			tableGroups.manualGroupSizes = groupSizes
+			reset()
+			if (manualGroupsDifference == 0) {
+				setPredefinedGroupsFromManualGroupSizes()
+			} else {
+				tableGroups.predefinedGroups = []
+			}
+		}
+	}
+
+	// TODO: Bug når de skiftes mellem hold. Se Noter-app'en.
 
 	function clearPredefinedGroups() {
 		// avoids changing group sizes
@@ -100,7 +172,8 @@
 <h3 class="h3">Bordgrupper</h3>
 
 <ReadMore>
-	Her kan du oprette bordgrupper (på højst 4 personer). Du kan indstille, at der ikke skal være for mange gengangere fra
+	Her kan du oprette bordgrupper (normalt på højst 4 personer). Du kan indstille, at der ikke skal være for mange
+	gengangere fra
 	<a class="anchor" href="historik/">historikken</a> af tidligere grupper – og evt. vælge nogle forudbestemte medlemmer
 	til nogle af grupperne.
 	{#snippet expansion()}
@@ -151,29 +224,55 @@
 	sidste grupper.
 </p>
 
-<h5 class="h5">Forudbestemte medlemmer</h5>
-<div class="flex flex-wrap gap-3">
-	{#each tableGroups.predefinedGroups as _, i}
-		<div class="w-36 card">
-			<header class="card-header pb-2"><h6 class="h6">Gruppe {i + 1}</h6></header>
-			<section class="single-selection flex flex-col gap-2">
-				{#each tableGroups.predefinedGroups[i] as _, j}
-					<Svelecte
-						{options}
-						clearable={true}
-						placeholder={''}
-						labelField={'name'}
-						valueField={'id'}
-						bind:value={tableGroups.predefinedGroups[i][j]}
-					/>
-				{/each}
-			</section>
-		</div>
-	{/each}
+<div class="flex gap-2 align-middle">
+	<Switch name="advanced" checked={tableGroups.advanced} onCheckedChange={(e) => advancedToggled(e.checked)} />
+	<span>Avancerede indstillinger</span>
 </div>
-<button class="mr-3 mb-4 btn preset-filled-primary-500" onclick={createGroups}> Dan grupper </button>
-<!-- TODO: Evt. "Er du sikker?" -->
-<button class="btn preset-outlined-primary-500" onclick={clearPredefinedGroups}> Ryd forudbestemte medlemmer </button>
+{#if tableGroups.advanced}
+	<h5 class="h5">Avancerede indstillinger</h5>
+	<p>
+		OBS: Ændring af gruppestørrelser nulstiller forudbestemte medlemmer.<br />
+		Skriv de ønskede gruppestørrelser adskilt af kommaer:
+	</p>
+	<input
+		class="input w-80"
+		type="text"
+		value={initialManualGroupSizesString}
+		oninput={(e) => updateManualGroupSizes(e.currentTarget.value)}
+	/>
+	{#if manualGroupsDifference != 0}
+		{@const numStudents = data.currentClass.students.length}
+		Grupperne tæller tilsammen {numStudents + manualGroupsDifference} af klassens {numStudents} elever.
+		{manualGroupsDifference < 0 ? `Tilføj ${-manualGroupsDifference}` : `Fjern ${manualGroupsDifference}`}
+		elever for at kunne danne grupper.
+	{/if}
+{/if}
+
+{#if !tableGroups.advanced || manualGroupsDifference == 0}
+	<h5 class="h5">Forudbestemte medlemmer</h5>
+	<div class="flex flex-wrap gap-3">
+		{#each tableGroups.predefinedGroups as _, i}
+			<div class="w-36 card">
+				<header class="card-header pb-2"><h6 class="h6">Gruppe {i + 1}</h6></header>
+				<section class="single-selection flex flex-col gap-2">
+					{#each tableGroups.predefinedGroups[i] as _, j}
+						<Svelecte
+							{options}
+							clearable={true}
+							placeholder={''}
+							labelField={'name'}
+							valueField={'id'}
+							bind:value={tableGroups.predefinedGroups[i][j]}
+						/>
+					{/each}
+				</section>
+			</div>
+		{/each}
+	</div>
+	<button class="mr-3 mb-4 btn preset-filled-primary-500" onclick={createGroups}> Dan grupper </button>
+	<!-- TODO: Evt. "Er du sikker?" -->
+	<button class="btn preset-outlined-primary-500" onclick={clearPredefinedGroups}> Ryd forudbestemte medlemmer </button>
+{/if}
 
 {#if tableGroups.errorText}
 	<div class="mt-4 card preset-tonal-error p-4">{tableGroups.errorText}</div>

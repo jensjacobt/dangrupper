@@ -133,7 +133,7 @@ function getTableOfPreviousPartners(studentIds: idNumber[], history: HistoryEntr
  * n: number of students in class
  * g: max number of students per group
  */
-function getTableGroupSizes(n: number, g: number = 4): number[] {
+export function getTableGroupSizes(n: number, g: number = 4): number[] {
 	if (n <= g) return [n]
 	if (n % g == 0) return Array(n / g).fill(g)
 	if (n % g == 1) {

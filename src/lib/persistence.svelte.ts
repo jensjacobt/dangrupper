@@ -181,17 +181,24 @@ export async function setActiveGroupType(classId: string, activeGroupType: Activ
 /* Table Groups */
 export async function getTableGroups(classId: string) {
 	const key = `${tableGroupsKey}_${classId}`
-	return (
-		(await getStored<TableGroups>(key)) ?? {
-			maxRecurring: 0,
-			nLastGroups: 3,
-			predefinedGroups: [],
-			currentGroups: [],
-			warningText: '',
-			errorText: '',
-			saved: false,
-		}
-	)
+	const tableGroups = (await getStored<TableGroups>(key)) ?? {
+		maxRecurring: 0,
+		nLastGroups: 3,
+		predefinedGroups: [],
+		currentGroups: [],
+		warningText: '',
+		errorText: '',
+		saved: false,
+		advanced: false,
+		manualGroupSizes: [],
+	}
+
+	if (tableGroups.advanced == undefined) {
+		console.log('Migrating tableGroups to allow advanced settings')
+		tableGroups.advanced = false
+		tableGroups.manualGroupSizes = []
+	}
+	return tableGroups
 }
 
 export function setTableGroups(classId: string, tableGroups: TableGroups) {

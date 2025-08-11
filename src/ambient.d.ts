@@ -34,6 +34,8 @@ declare type TableGroups = {
 	warningText: string
 	errorText: string
 	saved: boolean
+	advanced: boolean
+	manualGroupSizes: number[]
 }
 
 declare type HistoryEntry = {
