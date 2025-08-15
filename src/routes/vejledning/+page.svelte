@@ -31,7 +31,8 @@
 	<p>
 		Hold, grupper og sideindstillinger gemmes automatisk i din browser. Derfor skal du åbne siden på den samme computer
 		og i den samme browser for at se det automatisk gemte. Du kan vha. backup selv gemme data og eventuelt overføre det
-		til andre computere eller browsere.
+		til andre computere eller browsere. (For de teknisk interesserede gemmes data helt præcist vha. IndexedDB, som er en
+		del af din browser.)
 	</p>
 
 	<h3 class="pt-2 h3">Backup</h3>

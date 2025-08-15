@@ -1,4 +1,5 @@
 <script lang="ts">
+	import CopyToExcelButton from '$lib/CopyToExcelButton.svelte'
 	import DisplayGroups from '$lib/DisplayGroups.svelte'
 	import { createTableGroups, getEmptyPredefinedGroups, getTableGroupSizes } from '$lib/groupGenerator'
 	import { addToTableGroupsHistory, setTableGroups } from '$lib/persistence.svelte'
@@ -16,6 +17,8 @@
 	let tableGroups = $state() as TableGroups
 	let options = $state() as Student[]
 
+	let initialManualGroupSizesString = $state() as string
+
 	const displayGroups = $derived(
 		tableGroups.currentGroups ? groupsFromIds(tableGroups.currentGroups, data.currentClass) : [],
 	)
@@ -24,7 +27,7 @@
 
 		return tableGroups.manualGroupSizes.reduce((acc, val) => acc + val, 0) - data.currentClass.students.length
 	})
-	let initialManualGroupSizesString = $state() as string
+	const groupsConform = $derived(displayGroups.length <= 8 && displayGroups.every((g) => g.length <= 4))
 
 	$effect.pre(() => {
 		// needed for navigation between classes
@@ -170,7 +173,6 @@
 </svelte:head>
 
 <h3 class="h3">Bordgrupper</h3>
-
 <ReadMore>
 	Her kan du oprette bordgrupper (normalt på højst 4 personer). Du kan indstille, at der ikke skal være for mange
 	gengangere fra
@@ -208,6 +210,7 @@
 				Tag endelig en backup, da din browser kan vælge at slette app'ens database. Download en backup-fil vha. knappen
 				<Download class="inline" size={20} /> øverst til højre på enhver side.
 			</li>
+			<li>Hvis du slår avancerede indstillinger til, så kan du manuelt vælge gruppestørrelserne.</li>
 		</ol>
 		Næste gang du laver bordgrupper, vil du nok rydde de forudbestemte medlemmer vha. knappen til det.
 		<mark class="mark">Tip:</mark> Du kan bruge funktionen med forudbestemte medlemmer, hvis du vil oprette manuelle bordgrupper,
@@ -229,7 +232,7 @@
 	<span>Avancerede indstillinger</span>
 </div>
 {#if tableGroups.advanced}
-	<h5 class="h5">Avancerede indstillinger</h5>
+	<h6 class="h6">Gruppestørrelser</h6>
 	<p>
 		OBS: Ændring af gruppestørrelser nulstiller forudbestemte medlemmer.<br />
 		Skriv de ønskede gruppestørrelser adskilt af kommaer:
@@ -294,7 +297,11 @@
 			Grupper gemt <Check size={16} />
 		</button>
 		<h4 class="h4">Eksportér grupper</h4>
-		<OutputTableHorizontal groups={displayGroups} />
+		{#if groupsConform}
+			<OutputTableHorizontal groups={displayGroups} />
+		{:else}
+			<CopyToExcelButton groups={displayGroups} />
+		{/if}
 	{/if}
 {/if}
 
