@@ -21,7 +21,8 @@ export const load: PageLoad = async ({ parent }) => {
 			initialTableGroups.predefinedGroups = getEmptyPredefinedGroups(numStudents)
 		}
 
-		if (initialTableGroups.manualGroupSizes.length == 0) {
+		const numManual = initialTableGroups.manualGroupSizes.reduce((s, e) => s + e, 0)
+		if (numManual != numStudents) {
 			console.log('(Re)setting manual group sizes')
 			initialTableGroups.manualGroupSizes = getTableGroupSizes(numStudents)
 		}
