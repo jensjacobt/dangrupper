@@ -27,7 +27,7 @@
 
 		return tableGroups.manualGroupSizes.reduce((acc, val) => acc + val, 0) - data.currentClass.students.length
 	})
-	const groupsConform = $derived(displayGroups.length <= 8 && displayGroups.every((g) => g.length <= 4))
+	const groupsConform = $derived(displayGroups.length <= 8 && displayGroups.every((g) => g.length <= 5))
 
 	$effect.pre(() => {
 		// needed for navigation between classes

@@ -5,6 +5,9 @@
 
 	const { groups }: { groups: Student[][] } = $props()
 
+	const maxGroupsSize = $derived(Math.max(...groups.map((g) => g.length)))
+	const secondRowHeight = $derived(maxGroupsSize == 5 ? 3 : 2)
+
 	let canvas: HTMLCanvasElement
 	let textFade: TextFadeTransition
 
@@ -25,7 +28,7 @@
 		const p = 5
 		const s = 2
 		const fw = w * groups.length + s
-		const fh = h * 5 + s
+		const fh = h * (maxGroupsSize + 1) + s
 
 		const ctx = canvas.getContext('2d', { alpha: false })
 		if (!ctx) return
@@ -57,7 +60,7 @@
 			ctx.fillStyle = colors[i][0]
 			ctx.fillRect(w * i, h, w, h * 2)
 			ctx.fillStyle = colors[i][1]
-			ctx.fillRect(w * i, h * 3, w, h * 2)
+			ctx.fillRect(w * i, h * 3, w, h * secondRowHeight)
 			ctx.font = '14px Tahoma'
 			ctx.textAlign = 'left'
 			ctx.fillStyle = 'black'
@@ -104,4 +107,4 @@
 	<TextFadeTransition bind:this={textFade} text="Kopiér billede" temporaryText="Kopieret" />
 </button>
 
-<CopyToExcelButton minSize={4} {groups} classList={'btn w-35 preset-outlined-primary-500'} />
+<CopyToExcelButton minSize={Math.max(4, maxGroupsSize)} {groups} classList={'btn w-35 preset-outlined-primary-500'} />
