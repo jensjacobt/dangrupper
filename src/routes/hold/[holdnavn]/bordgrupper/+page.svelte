@@ -123,14 +123,19 @@
 	function createGroups() {
 		try {
 			tableGroups.saved = false
-			const [groups, overMaxPredefined] = createTableGroups(
-				data.currentClass.students,
-				data.history,
-				$state.snapshot(tableGroups),
-			)
+
+			const [groups, overMaxPredefined] = createTableGroups({
+				history: data.history,
+				studentIds: data.currentClass.students.map((s) => s.id),
+				predefinedGroups: $state.snapshot(tableGroups.predefinedGroups),
+				maxRecurring: $state.snapshot(tableGroups.maxRecurring),
+				nLastGroups: $state.snapshot(tableGroups.nLastGroups),
+			})
+
 			tableGroups.currentGroups = groups
 			tableGroups.errorText =
 				groups.length ? '' : 'Grupper kunne ikke dannes. Justér evt. indstillingerne (så der er lavere krav).'
+
 			if (overMaxPredefined.length == 0) {
 				tableGroups.warningText = ''
 			} else {

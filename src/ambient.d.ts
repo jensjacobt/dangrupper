@@ -38,6 +38,14 @@ declare type TableGroups = {
 	manualGroupSizes: number[]
 }
 
+declare type TableGroupInfo = {
+	history: HistoryEntry[]
+	studentIds: idNumber[]
+	predefinedGroups: maybeIdNumber[][]
+	maxRecurring: number
+	nLastGroups: number
+}
+
 declare type HistoryEntry = {
 	createdAt: string
 	groups: idNumber[][]

@@ -17,15 +17,20 @@ const random = (function () {
 type TableOfPartners = Map<idNumber, Set<idNumber>>
 
 export function createTableGroups(
-	students: Student[],
-	history: HistoryEntry[],
-	tableGroups: TableGroups,
+	tableGroupInfo: TableGroupInfo,
 ): [groups: idNumber[][], overMaxPredefined: maybeIdNumber[][]] {
-	const studentIds = students.map((s) => s.id)
-	const maxReps = 1 + tableGroups.maxRecurring
+	if (tableGroupInfo.predefinedGroups.flat().length != tableGroupInfo.studentIds.length) {
+		throw Error('Fejl i programmet: Forudbestemte gruppestørrelser matcher ikke antal elever.')
+	}
+
+	const maxReps = 1 + tableGroupInfo.maxRecurring
 	const overMaxPredefined: maybeIdNumber[][] = []
-	const tableOfPartners = getTableOfPreviousPartners(studentIds, history, tableGroups.nLastGroups)
-	const predefinedGroups = tableGroups.predefinedGroups.toReversed()
+	const tableOfPartners = getTableOfPreviousPartners(
+		tableGroupInfo.studentIds,
+		tableGroupInfo.history,
+		tableGroupInfo.nLastGroups,
+	)
+	const predefinedGroups = tableGroupInfo.predefinedGroups.toReversed()
 
 	let preassigned = new Set<idNumber>()
 	const nonNull = (s: maybeIdNumber) => s !== null
@@ -33,8 +38,8 @@ export function createTableGroups(
 		const ss = new Set(pg.filter(nonNull))
 		if (ss.size > 0) {
 			for (const s of ss) {
-				if (!studentIds.includes(s)) {
-					throw Error(`Den indtastede person med id "${s}" kunne ikke findes på listen over elever`)
+				if (!tableGroupInfo.studentIds.includes(s)) {
+					throw Error(`Den indtastede person med id "${s}" kunne ikke findes på listen over elever.`)
 				}
 			}
 			if (tooManyReps(tableOfPartners, ss, maxReps)) {
@@ -46,9 +51,11 @@ export function createTableGroups(
 		}
 		preassigned = preassigned.union(ss)
 	}
-	const assignableStudents = studentIds.filter((s) => !preassigned.has(s))
 
-	if (assignableStudents.length + predefinedGroups.flat().filter((s) => s !== null).length !== students.length) {
+	const assignableStudents = tableGroupInfo.studentIds.filter((s) => !preassigned.has(s))
+	const preassignedStudents = predefinedGroups.flat().filter((s) => s !== null)
+
+	if (assignableStudents.length + preassignedStudents.length !== tableGroupInfo.studentIds.length) {
 		throw Error('Antal elever der skulle placeres stemmer ikke med antal forudbestemte medlemmer.')
 	}
 
@@ -69,7 +76,7 @@ export function createTableGroups(
 			}
 		}
 
-		if (groups.reduce((acc, val) => acc + val.length, 0) == studentIds.length) {
+		if (groups.reduce((acc, val) => acc + val.length, 0) == tableGroupInfo.studentIds.length) {
 			return [groups, overMaxPredefined]
 		}
 	}
