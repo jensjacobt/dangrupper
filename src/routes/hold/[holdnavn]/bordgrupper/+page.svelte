@@ -5,7 +5,7 @@
 	import { addToTableGroupsHistory, setTableGroups } from '$lib/persistence.svelte'
 	import ReadMore from '$lib/ReadMore.svelte'
 	import { toaster } from '$lib/toaster'
-	import { groupsFromIds } from '$lib/utils'
+	import { groupsFromIds, studentsFromIds } from '$lib/utils'
 	import { Check, Download } from '@lucide/svelte'
 	import { Switch } from '@skeletonlabs/skeleton-svelte'
 	import Svelecte from 'svelecte'
@@ -136,15 +136,23 @@
 			tableGroups.errorText =
 				groups.length ? '' : 'Grupper kunne ikke dannes. Justér evt. indstillingerne (så der er lavere krav).'
 
-			if (overMaxPredefined.length == 0) {
+			if (overMaxPredefined.every((o) => o.length == 0)) {
 				tableGroups.warningText = ''
 			} else {
 				let groupStrs = []
-				for (const g of groupsFromIds(overMaxPredefined, data.currentClass)) {
-					groupStrs.push(`[${g.map((s) => s.name).join(', ')}]`)
+				for (let i = 0; i < overMaxPredefined.length; i++) {
+					const overMaxEntries = overMaxPredefined[i]
+					if (overMaxEntries.length > 0) {
+						let str = `\nGruppe ${i + 1}:`
+						for (const overMaxEntry of overMaxEntries) {
+							const students = studentsFromIds(overMaxEntry.pair, data.currentClass)
+							str += ` ${students[0].name} og ${students[1].name} var i gruppe sammen for ${overMaxEntry.groupsAgo} gruppe(r) siden.`
+						}
+						groupStrs.push(str)
+					}
 				}
 				const warningStart = 'Grupper med forudbestemte medlemmer, der har for mange gengangere: '
-				tableGroups.warningText = warningStart + groupStrs.join(', ')
+				tableGroups.warningText = warningStart + groupStrs.join('')
 			}
 		} catch (error) {
 			console.error(error)
@@ -288,7 +296,7 @@
 {#if displayGroups.length && !tableGroups.errorText.length}
 	<h4 class="h4">Nye grupper</h4>
 	{#if tableGroups.warningText}
-		<div class="mt-4 card preset-tonal-warning p-4">{tableGroups.warningText}</div>
+		<div class="mt-4 card preset-tonal-warning p-4 whitespace-pre-line">{tableGroups.warningText}</div>
 	{/if}
 
 	<DisplayGroups groups={displayGroups} />

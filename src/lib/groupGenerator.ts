@@ -16,41 +16,67 @@ const random = (function () {
 
 type TableOfPartners = Map<idNumber, Set<idNumber>>
 
+type overMaxEntry = {
+	pair: number[]
+	groupsAgo: number
+}
+
 export function createTableGroups(
 	tableGroupInfo: TableGroupInfo,
-): [groups: idNumber[][], overMaxPredefined: maybeIdNumber[][]] {
+): [groups: idNumber[][], overMaxPredefined: overMaxEntry[][]] {
 	if (tableGroupInfo.predefinedGroups.flat().length != tableGroupInfo.studentIds.length) {
 		throw Error('Fejl i programmet: Forudbestemte gruppestørrelser matcher ikke antal elever.')
 	}
 
 	const maxReps = 1 + tableGroupInfo.maxRecurring
-	const overMaxPredefined: maybeIdNumber[][] = []
-	const tableOfPartners = getTableOfPreviousPartners(
-		tableGroupInfo.studentIds,
-		tableGroupInfo.history,
-		tableGroupInfo.nLastGroups,
-	)
-	const predefinedGroups = tableGroupInfo.predefinedGroups.toReversed()
+	const groupsBack = Math.min(tableGroupInfo.nLastGroups, tableGroupInfo.history.length)
+	const overMaxPredefined: overMaxEntry[][] = []
+	const tableOfPartners = getTableOfPreviousPartners(tableGroupInfo.studentIds, tableGroupInfo.history, groupsBack)
 
 	let preassigned = new Set<idNumber>()
 	const nonNull = (s: maybeIdNumber) => s !== null
-	for (const pg of predefinedGroups) {
-		const ss = new Set(pg.filter(nonNull))
-		if (ss.size > 0) {
-			for (const s of ss) {
-				if (!tableGroupInfo.studentIds.includes(s)) {
-					throw Error(`Den indtastede person med id "${s}" kunne ikke findes på listen over elever.`)
+	for (const predefinedGroup of tableGroupInfo.predefinedGroups) {
+		const predefinedStudentsOfGroup = new Set(predefinedGroup.filter(nonNull))
+		const overMaxEntries: overMaxEntry[] = []
+		if (predefinedStudentsOfGroup.size > 0) {
+			for (const studentId of predefinedStudentsOfGroup) {
+				if (!tableGroupInfo.studentIds.includes(studentId)) {
+					throw Error(`Den indtastede person med id "${studentId}" kunne ikke findes på listen over elever.`)
 				}
 			}
-			if (tooManyReps(tableOfPartners, ss, maxReps)) {
-				overMaxPredefined.push(pg)
-				for (const s of ss) {
-					tableOfPartners.set(s, (tableOfPartners.get(s) as Set<idNumber>).difference(ss))
+
+			if (tooManyReps(tableOfPartners, predefinedStudentsOfGroup, maxReps)) {
+				for (const s of predefinedStudentsOfGroup) {
+					tableOfPartners.set(s, (tableOfPartners.get(s) as Set<idNumber>).difference(predefinedStudentsOfGroup))
+				}
+
+				const studentIds = Array.from(predefinedStudentsOfGroup)
+				for (let i = 0; i < studentIds.length - 1; i++) {
+					const studentId = studentIds[i]
+					for (let groupsAgo = 1; groupsAgo <= groupsBack; groupsAgo++) {
+						const groups = tableGroupInfo.history[tableGroupInfo.history.length - groupsAgo].groups
+						for (const group of groups) {
+							if (group.includes(studentId)) {
+								for (let j = i + 1; j < studentIds.length; j++) {
+									const partnerId = studentIds[j]
+									if (group.includes(partnerId)) {
+										overMaxEntries.push({
+											pair: [studentId, partnerId].toSorted(),
+											groupsAgo: groupsAgo,
+										})
+									}
+								}
+							}
+						}
+					}
 				}
 			}
 		}
-		preassigned = preassigned.union(ss)
+		overMaxPredefined.push(overMaxEntries)
+		preassigned = preassigned.union(predefinedStudentsOfGroup)
 	}
+
+	const predefinedGroups = tableGroupInfo.predefinedGroups.toReversed()
 
 	const assignableStudents = tableGroupInfo.studentIds.filter((s) => !preassigned.has(s))
 	const preassignedStudents = predefinedGroups.flat().filter((s) => s !== null)
@@ -116,8 +142,11 @@ function tooManyReps(tableOfPartners: TableOfPartners, groupSet: Set<idNumber>, 
 }
 
 // OBS: Man er selv en tidligere gruppemakker
-function getTableOfPreviousPartners(studentIds: idNumber[], history: HistoryEntry[], maxBack: number): TableOfPartners {
-	const groupsBack = Math.min(maxBack, history.length)
+function getTableOfPreviousPartners(
+	studentIds: idNumber[],
+	history: HistoryEntry[],
+	groupsBack: number,
+): TableOfPartners {
 	const tableOfPartners: TableOfPartners = new Map<idNumber, Set<idNumber>>()
 	for (const s of studentIds) {
 		const partners = new Set<idNumber>([])
