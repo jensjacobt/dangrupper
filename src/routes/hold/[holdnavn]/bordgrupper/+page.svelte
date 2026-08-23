@@ -1,7 +1,7 @@
 <script lang="ts">
 	import CopyToExcelButton from '$lib/CopyToExcelButton.svelte'
 	import DisplayGroups from '$lib/DisplayGroups.svelte'
-	import { createTableGroups, getEmptyPredefinedGroups, getTableGroupSizes } from '$lib/groupGenerator'
+	import { createTableGroups, getTableGroupSizes } from '$lib/groupGenerator'
 	import { addToTableGroupsHistory, setTableGroups } from '$lib/persistence.svelte'
 	import ReadMore from '$lib/ReadMore.svelte'
 	import { toaster } from '$lib/toaster'
@@ -15,33 +15,52 @@
 	let { data }: PageProps = $props()
 
 	let tableGroups = $state() as TableGroups
-	let options = $state() as Student[]
+	let intialManualGroupSizes = $state() as number[]
 
-	let initialManualGroupSizesString = $state() as string
+	const options = $derived.by(() => {
+		console.log('Updating options')
+		if (!tableGroups) return []
+		const opts: Student[] = $state.snapshot(data.currentClass.students)
+		const predefinedIds = tableGroups.predefinedGroups.flat()
+		return opts.filter((s) => !predefinedIds.includes(s.id))
+	})
 
 	const displayGroups = $derived(
-		tableGroups.currentGroups ? groupsFromIds(tableGroups.currentGroups, data.currentClass) : [],
+		!tableGroups.currentGroups ? [] : groupsFromIds(tableGroups.currentGroups, data.currentClass),
 	)
-	const manualGroupsDifference = $derived.by(() => {
-		if (!tableGroups) return 0
-
-		return tableGroups.manualGroupSizes.reduce((acc, val) => acc + val, 0) - data.currentClass.students.length
-	})
+	const manualGroupsDifference = $derived(
+		!tableGroups ? 1 : tableGroups.manualGroupSizes.reduce((s, v) => s + v, 0) - data.currentClass.students.length,
+	)
 	const groupsConform = $derived(displayGroups.length <= 8 && displayGroups.every((g) => g.length <= 5))
 
 	$effect.pre(() => {
 		// needed for navigation between classes
 		console.log('Reading in loaded data')
+
+		// any invalid ids from predefined groups are set to null
+		const studentIds = data.currentClass.students.map((s) => s.id)
+		for (let i = 0; i < data.initialTableGroups.predefinedGroups.length; i++) {
+			for (let j = 0; j < data.initialTableGroups.predefinedGroups[i].length; j++) {
+				const id = data.initialTableGroups.predefinedGroups[i][j]
+				if (id != null && !studentIds.includes(id)) {
+					data.initialTableGroups.predefinedGroups[i][j] = null
+				}
+			}
+		}
+
+		// reset group sizes if needed
+		let shouldResetManualGroupsSizes = !data.initialTableGroups.advanced
+		shouldResetManualGroupsSizes &&=
+			data.initialTableGroups.manualGroupSizes.reduce((s, v) => s + v, 0) != data.currentClass.students.length
+		shouldResetManualGroupsSizes ||=
+			data.initialTableGroups.predefinedGroups.reduce((s, e) => s + e.length, 0) != data.currentClass.students.length
+		if (shouldResetManualGroupsSizes) {
+			data.initialTableGroups.manualGroupSizes = getTableGroupSizes(data.currentClass.students.length)
+			data.initialTableGroups.predefinedGroups = getPredefinedGroupsFromManualGroupSizes(data.initialTableGroups)
+		}
+
+		intialManualGroupSizes = data.initialTableGroups.manualGroupSizes
 		tableGroups = data.initialTableGroups
-		options = data.currentClass.students // needed trick for Svelecte
-
-		initialManualGroupSizesString = data.initialTableGroups.manualGroupSizes.join(', ')
-	})
-
-	$effect(() => {
-		console.log('Updating options')
-		const predefinedIds = tableGroups.predefinedGroups.flat()
-		options = data.currentClass.students.filter((s) => !predefinedIds.includes(s.id))
 	})
 
 	$effect(() => {
@@ -54,14 +73,20 @@
 		tableGroups.currentGroups = []
 	}
 
-	function setPredefinedGroupsFromManualGroupSizes() {
-		tableGroups.predefinedGroups = tableGroups.manualGroupSizes.map((gs) => Array(gs).fill(null))
+	function getPredefinedGroupsFromManualGroupSizes(tableGroups: TableGroups) {
+		let oldpg = $state.snapshot(tableGroups.predefinedGroups)
+		let newpg = tableGroups.manualGroupSizes.map((gs) => Array(gs).fill(null))
+		for (let i = 0; i < newpg.length && i < oldpg.length; i++) {
+			for (let j = 0; j < newpg[i].length && j < oldpg[i].length; j++) {
+				newpg[i][j] = oldpg[i][j]
+			}
+		}
+		return newpg
 	}
 
 	function advancedToggled(checked: boolean) {
 		tableGroups.advanced = checked
 		if (checked) {
-			initialManualGroupSizesString = tableGroups.manualGroupSizes.join(', ')
 			if (
 				manualGroupsDifference == 0
 				&& !arraysEqual(
@@ -69,13 +94,14 @@
 					tableGroups.predefinedGroups.map((g) => g.length),
 				)
 			) {
-				setPredefinedGroupsFromManualGroupSizes()
+				tableGroups.predefinedGroups = getPredefinedGroupsFromManualGroupSizes(tableGroups)
 			}
 		}
 
 		const numStudents = data.currentClass.students.length
 		if (!checked && !arraysEqual(tableGroups.manualGroupSizes, getTableGroupSizes(numStudents))) {
-			tableGroups.predefinedGroups = getEmptyPredefinedGroups(numStudents)
+			tableGroups.manualGroupSizes = getTableGroupSizes(data.currentClass.students.length)
+			tableGroups.predefinedGroups = getPredefinedGroupsFromManualGroupSizes(tableGroups)
 		}
 		reset()
 	}
@@ -102,14 +128,22 @@
 			tableGroups.manualGroupSizes = groupSizes
 			reset()
 			if (manualGroupsDifference == 0) {
-				setPredefinedGroupsFromManualGroupSizes()
-			} else {
-				tableGroups.predefinedGroups = []
+				tableGroups.predefinedGroups = getPredefinedGroupsFromManualGroupSizes(tableGroups)
 			}
 		}
 	}
 
-	// TODO: Bug når de skiftes mellem hold. Se Noter-app'en.
+	function getOptions(predefined: maybeIdNumber) {
+		if (predefined === null) {
+			return options
+		}
+		for (const student of data.currentClass.students) {
+			if (student.id == predefined) {
+				return options.concat(student)
+			}
+		}
+		throw 'This line should never be executed. Bad state: Predefined student id not in the array of students.'
+	}
 
 	function clearPredefinedGroups() {
 		// avoids changing group sizes
@@ -246,38 +280,35 @@
 </div>
 {#if tableGroups.advanced}
 	<h6 class="h6">Gruppestørrelser</h6>
-	<p>
-		OBS: Ændring af gruppestørrelser nulstiller forudbestemte medlemmer.<br />
-		Skriv de ønskede gruppestørrelser adskilt af kommaer:
-	</p>
+	<p>Skriv de ønskede gruppestørrelser adskilt af kommaer:</p>
 	<input
 		class="input w-80"
 		type="text"
-		value={initialManualGroupSizesString}
+		value={intialManualGroupSizes}
 		oninput={(e) => updateManualGroupSizes(e.currentTarget.value)}
 	/>
 	{#if manualGroupsDifference != 0}
 		{@const numStudents = data.currentClass.students.length}
-		Grupperne tæller tilsammen {numStudents + manualGroupsDifference} af klassens {numStudents} elever.
+		Grupperne tæller tilsammen {numStudents + manualGroupsDifference} af holdets {numStudents} elever.
 		{manualGroupsDifference < 0 ? `Tilføj ${-manualGroupsDifference}` : `Fjern ${manualGroupsDifference}`}
-		elever for at kunne danne grupper.
+		elev(er) for at kunne danne grupper.
 	{/if}
 {/if}
 
-{#if !tableGroups.advanced || manualGroupsDifference == 0}
+{#if manualGroupsDifference == 0}
 	<h5 class="h5">Forudbestemte medlemmer</h5>
 	<div class="flex flex-wrap gap-3">
-		{#each tableGroups.predefinedGroups as _, i}
+		{#each { length: tableGroups.predefinedGroups.length }, i}
 			<div class="w-36 card">
 				<header class="card-header pb-2"><h6 class="h6">Gruppe {i + 1}</h6></header>
 				<section class="single-selection flex flex-col gap-2">
-					{#each tableGroups.predefinedGroups[i] as _, j}
+					{#each { length: tableGroups.predefinedGroups[i].length }, j}
 						<Svelecte
-							{options}
+							options={getOptions(tableGroups.predefinedGroups[i][j])}
 							clearable={true}
-							placeholder={''}
-							labelField={'name'}
-							valueField={'id'}
+							placeholder=""
+							labelField="name"
+							valueField="id"
 							bind:value={tableGroups.predefinedGroups[i][j]}
 						/>
 					{/each}

@@ -13,6 +13,16 @@ declare type Student = {
 	effort?: Grade
 }
 
+declare type StudentOption = {
+	id: idNumber
+	name: string
+	gender?: 'm' | 'k'
+	writtenGrade?: Grade
+	oralGrade?: Grade
+	effort?: Grade
+	$disabled?: boolean
+}
+
 declare type Class = {
 	id: string
 	name: string
