@@ -27,7 +27,7 @@
 
 	const displayGroups = $derived(groups.filter((g) => g.length > 0))
 
-	function onchange(value: Student[], i: number) {
+	function onchange(value: Student[]) {
 		if (value.length == 0) {
 			reset(groups.filter((g) => g.length > 0))
 		}
@@ -99,13 +99,13 @@
 				<Svelecte
 					multiple
 					clearable
-					placeholder={''}
-					labelField={'name'}
-					valueField={'id'}
+					placeholder=""
+					labelField="name"
+					valueField="id"
 					{options}
 					valueAsObject={true}
 					bind:value={groups[i]}
-					onChange={(a: Student[]) => onchange(a, i)}
+					onChange={(a: Student[]) => onchange(a)}
 				/>
 			</div>
 		{/each}
