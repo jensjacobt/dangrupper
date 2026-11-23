@@ -172,7 +172,7 @@ describe('Table Groups test', () => {
 		expect(groups[0][2]).toStrictEqual(4)
 	})
 
-	test('warning path - has 2 history - two predefined', () => {
+	test('warning path - has 2 history - two predefined - match 2 back', () => {
 		const hisGroups1 = [
 			[0, 1, 2],
 			[3, 4, 5],
@@ -218,6 +218,64 @@ describe('Table Groups test', () => {
 
 		expect(groups[0][0]).toStrictEqual(3)
 		expect([5, 7, 11, 0, 8]).not.toContain(groups[0][1])
+		expect(groups[0][2]).toStrictEqual(4)
+	})
+
+	test('warning path - has 2 history - three predefined - match 1 back and 2 back', () => {
+		const hisGroups1 = [
+			[0, 1, 2],
+			[3, 4, 5],
+			[6, 7, 8],
+			[9, 10, 11],
+		]
+		const hisGroups2 = [
+			[0, 4, 8],
+			[3, 7, 11],
+			[6, 10, 2],
+			[9, 1, 5],
+		]
+		const tableGroupInfo = {
+			history: [
+				{
+					createdAt: 'dateString1', // bad data
+					groups: hisGroups1,
+				},
+				{
+					createdAt: 'dateString2', // bad data
+					groups: hisGroups2,
+				},
+			],
+			studentIds: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
+			predefinedGroups: [
+				[3, 8, 4],
+				[null, null, null],
+				[null, null, null],
+				[null, null, null],
+			],
+			maxRecurring: 0,
+			nLastGroups: 3,
+		}
+		const [groups, overMaxPredefined] = createTableGroups(tableGroupInfo)
+
+		expect(overMaxPredefined).toEqual([
+			[
+				{ groupsAgo: 2, pair: [3, 4] },
+				{ groupsAgo: 1, pair: [4, 8] },
+			],
+			[],
+			[],
+			[],
+		])
+
+		for (let i = 0; i < tableGroupInfo.predefinedGroups.length; i++) {
+			const preLength = tableGroupInfo.predefinedGroups[i].length
+			expect(groups[i].length).toBe(preLength)
+		}
+		expect(new Set(groups.flat())).toEqual(new Set(tableGroupInfo.studentIds))
+
+		expect(groups[0][0]).toStrictEqual(3)
+		expect([5, 7, 11, 0]).not.toContain(groups[0][1])
+		expect(groups[0][1]).toStrictEqual(8)
 		expect(groups[0][2]).toStrictEqual(4)
 	})
 

@@ -171,12 +171,13 @@
 				for (let i = 0; i < overMaxPredefined.length; i++) {
 					const overMaxEntries = overMaxPredefined[i]
 					if (overMaxEntries.length > 0) {
-						let str = `\nGruppe ${i + 1}:`
+						let warningsForGroup = []
 						for (const overMaxEntry of overMaxEntries) {
 							const students = studentsFromIds(overMaxEntry.pair, data.currentClass)
-							str += ` ${students[0].name} og ${students[1].name} var i gruppe sammen for ${overMaxEntry.groupsAgo} gruppe(r) siden.`
+							const msg = `${students[0].name} og ${students[1].name} var i gruppe sammen for ${overMaxEntry.groupsAgo} gruppe(r) siden.`
+							warningsForGroup.push(msg)
 						}
-						groupStrs.push(str)
+						groupStrs.push(`\nGruppe ${i + 1}: ${warningsForGroup.join('\n                    ')}`)
 					}
 				}
 				const warningStart = 'Grupper med forudbestemte medlemmer, der har for mange gengangere: '
@@ -325,7 +326,7 @@
 {#if displayGroups.length && !tableGroups.errorText.length}
 	<h4 class="h4">Nye grupper</h4>
 	{#if tableGroups.warningText}
-		<div class="mt-4 card preset-tonal-warning p-4 whitespace-pre-line">{tableGroups.warningText}</div>
+		<div class="mt-4 card preset-tonal-warning p-4 whitespace-pre-wrap">{tableGroups.warningText}</div>
 	{/if}
 
 	<DisplayGroups groups={displayGroups} />
