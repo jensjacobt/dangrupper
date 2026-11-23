@@ -133,10 +133,16 @@
 		}
 	}
 
-	function getPredefinedStudent(maybeId: maybeIdNumber) {
-		if (maybeId === null) return null
-
-		return data.currentClass.students.find((s) => s.id == maybeId) ?? null
+	function getOptions(predefined: maybeIdNumber) {
+		if (predefined === null) {
+			return options
+		}
+		for (const student of data.currentClass.students) {
+			if (student.id == predefined) {
+				return options.concat(student)
+			}
+		}
+		throw 'This line should never be executed. Bad state: Predefined student id not in the array of students.'
 	}
 
 	function clearPredefinedGroups() {
@@ -299,16 +305,12 @@
 				<section class="single-selection flex flex-col gap-2">
 					{#each { length: tableGroups.predefinedGroups[i].length }, j}
 						<Svelecte
-							{options}
+							options={getOptions(tableGroups.predefinedGroups[i][j])}
 							clearable={true}
-							valueAsObject={true}
 							placeholder=""
 							labelField="name"
-							strictMode={false}
-							bind:value={
-								() => getPredefinedStudent(tableGroups.predefinedGroups[i][j]),
-								(s) => (tableGroups.predefinedGroups[i][j] = s?.id ?? null)
-							}
+							valueField="id"
+							bind:value={tableGroups.predefinedGroups[i][j]}
 						/>
 					{/each}
 				</section>

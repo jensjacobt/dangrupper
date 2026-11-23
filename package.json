@@ -11,7 +11,7 @@
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
 		"format": "prettier --write .",
 		"lint": "prettier --check . && eslint .",
-		"stage": "git push --force-with-lease origin main:staging",
+		"stage": "git push origin main:staging",
 		"test:unit": "vitest",
 		"test": "npm run test:unit -- --run"
 	},
